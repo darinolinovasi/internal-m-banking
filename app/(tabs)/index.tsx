@@ -1,9 +1,10 @@
-import { Feather, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import BottomNavbar from '../../components/BottomNavbar';
 
 export default function HomeScreen() {
   return (
@@ -139,31 +140,7 @@ export default function HomeScreen() {
         </ScrollView>
       </View>
       {/* Bottom Navbar */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={26} color="#fff" />
-          <Text style={styles.navLabel}>Beranda</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialCommunityIcons name="view-list-outline" size={26} color="#fff" />
-          <Text style={styles.navLabel}>Transaksi</Text>
-        </TouchableOpacity>
-        <View style={styles.centerNavItemWrapper}>
-          <TouchableOpacity style={styles.centerNavItem}>
-            <MaterialIcons name="credit-card" size={32} color="#fff" />
-            <MaterialIcons name="arrow-upward" size={18} color="#fff" style={styles.transferArrow} />
-          </TouchableOpacity>
-          <Text style={styles.centerNavLabel}>Transfer</Text>
-        </View>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialCommunityIcons name="history" size={26} color="#fff" />
-          <Text style={styles.navLabel}>Jadwal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person" size={26} color="#fff" />
-          <Text style={styles.navLabel}>Akun Saya</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavbar />
     </SafeAreaView >
   );
 }

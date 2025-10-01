@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Rect } from 'react-native-svg';
+import VerifyPinModal from '../components/VerifyPinModal';
 import { useSignIn } from '../hooks/use-signin';
 
 export default function SignInScreen() {
@@ -11,13 +12,20 @@ export default function SignInScreen() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const { signIn, loading, error } = useSignIn();
+    const [pinModalVisible, setPinModalVisible] = useState(false);
     const router = useRouter();
+
+    const modalCallback = () => {
+        router.replace('/');
+        setPinModalVisible(false);
+    }
 
     React.useEffect(() => {
         const checkJwt = async () => {
             const jwt = await AsyncStorage.getItem('jwt');
             if (jwt) {
-                router.replace('/verify-pin');
+                setPinModalVisible(true);
+                // router.replace('/verify-pin');
             }
         };
         checkJwt();
@@ -28,7 +36,7 @@ export default function SignInScreen() {
             const result = await signIn(email, password);
             console.log('User data after login:', result);
             if (result.data.user.pin_created) {
-                router.replace('/verify-pin');
+                setPinModalVisible(true);
             } else {
                 router.replace('/create-pin');
             }
@@ -39,6 +47,7 @@ export default function SignInScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
+            <VerifyPinModal visible={pinModalVisible} callback={modalCallback} />
             <View style={styles.container}>
                 <Text style={styles.title}>Masuk</Text>
                 <View style={{ marginTop: 40, width: '100%' }}>

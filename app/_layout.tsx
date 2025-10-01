@@ -8,7 +8,7 @@ import { Inter_700Bold_Italic, Inter_900Black_Italic, useFonts } from '@expo-goo
 import { useEffect } from 'react';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: 'index',
 };
 
 export default function RootLayout() {
@@ -37,11 +37,11 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="signin" options={{ headerShown: false }} />
-        <Stack.Screen name="verify-pin" options={{ headerShown: false }} />
         <Stack.Screen name="create-pin" options={{ headerShown: false }} />
         <Stack.Screen name="confirmation-pin" options={{ headerShown: false }} />
         <Stack.Screen name="update-pin" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="saved-accounts" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />

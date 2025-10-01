@@ -31,7 +31,7 @@ export default function ConfirmationPinScreen() {
                     setModal({ visible: true, message: 'PIN Anda berhasil dibuat!', loading: false });
                     setTimeout(() => {
                         setModal({ visible: false, message: '', loading: false });
-                        router.replace('/(tabs)');
+                        router.replace('/');
                     }, 1500);
                 }
             } catch (err) {

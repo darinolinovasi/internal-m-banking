@@ -1,0 +1,324 @@
+import AccountNumberInputSheet from '@/components/AccountNumberInputSheet';
+import BankListSheet from '@/components/BankListSheet';
+import { useSavedAccounts } from '@/hooks/use-saved-accounts';
+import BottomSheet from '@gorhom/bottom-sheet';
+import pkg from 'lodash';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
+
+const { debounce } = pkg;
+
+export default function SavedAccountsScreen() {
+    const [search, setSearch] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [showSheet, setShowSheet] = useState(false);
+    const [selectedBank, setSelectedBank] = useState<any>(null);
+    const [accountNumber, setAccountNumber] = useState('');
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const snapPoints = useMemo(() => ['100%'], []);
+    const { accounts, loading, error, refetch } = useSavedAccounts();
+
+    // Debounce handlers (no useEffect)
+    const debouncedSetSearch = React.useMemo(() => debounce((val: string) => setDebouncedSearch(val), 300), []);
+    const handleSearchChange = (val: string) => {
+        setSearch(val);
+        debouncedSetSearch(val);
+    };
+
+    const filteredAccounts = accounts.filter(
+        a =>
+            (a.account_holder_name || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            (a.bank?.bank_name || '').toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+            (a.account_number || '').replace(/\s/g, '').includes(debouncedSearch.replace(/\s/g, ''))
+    );
+
+    const handleSheetChanges = useCallback((index: number) => {
+        if (index === -1) {
+            setShowSheet(false);
+            setSelectedBank(null); // Clear selected bank when sheet is closed
+            setAccountNumber(''); // Optionally clear account number as well
+        }
+        bottomSheetRef.current?.expand();
+    }, []);
+
+    const handleBankPress = (bank: any) => {
+        setSelectedBank(bank);
+        setAccountNumber('');
+    };
+    const handleBack = () => {
+        setSelectedBank(null);
+        setAccountNumber('');
+    };
+    const handleKeypad = (val: string) => {
+        if (accountNumber.length < 16) setAccountNumber(accountNumber + val);
+    };
+    const handleDelete = () => {
+        setAccountNumber(accountNumber.slice(0, -1));
+    };
+
+    // Add a handler to close the sheet from child
+    const handleAccountSaved = () => {
+        setShowSheet(false);
+        setSelectedBank(null);
+        setAccountNumber('');
+        refetch(); // Refresh the saved accounts list
+    };
+
+    return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
+            <GestureHandlerRootView style={styles.container}>
+                <View style={{ flex: 1, backgroundColor: '#EFEFEF' }}>
+                    <View style={styles.searchBarWrapper}>
+                        <View style={styles.searchBar}>
+                            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+                                <Path d="M21 21L15.8 15.8M17 11C17 14.3137 14.3137 17 11 17C7.68629 17 5 14.3137 5 11C5 7.68629 7.68629 5 11 5C14.3137 5 17 7.68629 17 11Z" stroke="#BFC6D1" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                            </Svg>
+                            <TextInput
+                                style={styles.searchInput}
+                                placeholder="Cari nama, bank atau nomor rekening"
+                                placeholderTextColor="#BFC6D1"
+                                value={search}
+                                onChangeText={handleSearchChange}
+                            />
+                        </View>
+                        <TouchableOpacity onPress={Keyboard.dismiss}>
+                            <Text style={styles.cancelText}>Batal</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.sectionTitle}>Rekening Tersimpan</Text>
+                    {loading ? (
+                        <Text style={{ margin: 16 }}>Memuat...</Text>
+                    ) : error ? (
+                        <Text style={{ color: 'red', margin: 16 }}>{error}</Text>
+                    ) : (
+                        <FlatList
+                            data={filteredAccounts}
+                            keyExtractor={item => item.id?.toString() || item.account_number}
+                            contentContainerStyle={{ paddingHorizontal: 8 }}
+                            renderItem={({ item }) => (
+                                <View style={styles.accountCard}>
+                                    <View style={styles.avatar} />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.accountName}>{item.account_holder_name}</Text>
+                                        <Text style={styles.accountBank}>{item.bank?.bank_name}</Text>
+                                        <Text style={styles.accountNumber}>{item.account_number}</Text>
+                                        {item.note ? <Text style={{}}>{item.note}</Text> : null}
+                                    </View>
+                                    <TouchableOpacity>
+                                        <Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
+                                            <Path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" stroke="#BFC6D1" strokeWidth={2} strokeLinejoin="round" fill={item.favorite ? '#FFD700' : 'none'} />
+                                        </Svg>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        />
+                    )}
+                    <TouchableOpacity style={styles.fab} onPress={() => setShowSheet(true)}>
+                        <Text style={styles.fabText}>+</Text>
+                    </TouchableOpacity>
+                    {showSheet && (
+                        <BottomSheet
+                            ref={bottomSheetRef}
+                            onChange={handleSheetChanges}
+                            snapPoints={snapPoints}
+                            enablePanDownToClose
+                            onClose={() => setShowSheet(false)}
+                            enableDynamicSizing={false}
+                        >
+                            {selectedBank ? (
+                                <AccountNumberInputSheet
+                                    bank={selectedBank}
+                                    accountNumber={accountNumber}
+                                    setAccountNumber={setAccountNumber}
+                                    onBack={handleBack}
+                                    onKeypad={handleKeypad}
+                                    onDelete={handleDelete}
+                                    onAccountSaved={handleAccountSaved}
+                                />
+                            ) : (
+                                <BankListSheet
+                                    onBankPress={handleBankPress}
+                                />
+                            )}
+                        </BottomSheet>
+                    )}
+                </View>
+            </GestureHandlerRootView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    contentContainer: {
+        flex: 1,
+        padding: 0,
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        backgroundColor: '#fff',
+    },
+    searchBarWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        paddingBottom: 0,
+        backgroundColor: '#EFEFEF',
+    },
+    searchBar: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 18,
+        paddingHorizontal: 12,
+        height: 36,
+        marginRight: 12,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 12,
+        marginLeft: 8,
+        color: '#222',
+    },
+    cancelText: {
+        color: '#1976D2',
+        fontSize: 15,
+        fontWeight: '500',
+    },
+    sectionTitle: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        color: '#444',
+        marginTop: 16,
+        marginBottom: 8,
+        marginLeft: 16,
+    },
+    accountCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 12,
+        marginHorizontal: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.03,
+        shadowRadius: 4,
+        elevation: 1,
+    },
+    avatar: {
+        width: 44,
+        height: 44,
+        borderRadius: 8,
+        backgroundColor: '#D9D9D9',
+        marginRight: 14,
+    },
+    accountName: {
+        fontWeight: 'bold',
+        fontSize: 15,
+        color: '#222',
+    },
+    accountBank: {
+        fontSize: 13,
+        color: '#444',
+        marginTop: 2,
+    },
+    accountNumber: {
+        fontSize: 13,
+        color: '#888',
+        marginTop: 2,
+    },
+    fab: {
+        position: 'absolute',
+        right: 24,
+        bottom: 32,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: '#555',
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 4,
+    },
+    fabText: {
+        color: '#fff',
+        fontSize: 32,
+        fontWeight: 'bold',
+        marginTop: -2,
+    },
+    sheetHeader: {
+        alignItems: 'center',
+        paddingTop: 16,
+        paddingBottom: 8,
+    },
+    dragIndicator: {
+        width: 48,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#D9D9D9',
+        alignSelf: 'center',
+        marginBottom: 12,
+    },
+    sheetTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#444',
+    },
+    sheetSearchBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F2F2F2',
+        borderRadius: 18,
+        paddingHorizontal: 12,
+        height: 36,
+        margin: 16,
+    },
+    sheetSearchInput: {
+        flex: 1,
+        fontSize: 12,
+        marginLeft: 8,
+        color: '#222',
+    },
+    sheetSectionTitle: {
+        fontWeight: 'bold',
+        fontSize: 14,
+        color: '#444',
+        marginLeft: 16,
+        marginTop: 8,
+    },
+    bankItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+    },
+    bankLogoPlaceholder: {
+        width: 48,
+        height: 48,
+        marginRight: 16,
+        borderRadius: 10,
+        backgroundColor: '#D9D9D9',
+    },
+    bankName: {
+        fontSize: 14,
+        color: '#222',
+    },
+    keypadKey: {
+        flex: 1,
+        height: 80,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 0.5,
+        borderColor: '#E0E0E0',
+        backgroundColor: '#fff',
+    },
+    keypadKeyText: {
+        fontSize: 28,
+        color: '#222',
+        fontWeight: 'bold',
+    },
+});

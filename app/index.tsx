@@ -1,11 +1,14 @@
+import BottomNavbar from '@/components/BottomNavbar';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
-import BottomNavbar from '../../components/BottomNavbar';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
       <View style={styles.container}>
@@ -25,7 +28,6 @@ export default function HomeScreen() {
                 <Path d="M17.4167 6.33332H20.6103C23.6218 6.33332 25.1275 6.33332 26.0617 7.26115C26.5842 7.77732 26.8153 8.47082 26.9167 9.49999M17.4167 31.6667H20.6103C23.6218 31.6667 25.1275 31.6667 26.0617 30.7388C26.5842 30.2227 26.8153 29.5292 26.9167 28.5M33.25 19H22.1667M30.875 15.0417C30.875 15.0417 34.8333 17.955 34.8333 19C34.8333 20.045 30.875 22.9583 30.875 22.9583M6.95559 6.33332C6.33334 7.31024 6.33334 8.57057 6.33334 11.0897V26.9135C6.33334 29.4326 6.33334 30.6929 6.95559 31.6667C7.06643 31.8408 7.19045 32.0055 7.32768 32.1607C8.09243 33.0252 9.30526 33.3719 11.7293 34.0638C14.1566 34.7573 15.371 35.1041 16.2513 34.5847C16.4038 34.4942 16.5456 34.387 16.6741 34.2649C17.4167 33.5603 17.4167 32.3 17.4167 29.7714V8.22857C17.4167 5.70157 17.4167 4.43965 16.6741 3.73665C16.5456 3.6146 16.4038 3.50732 16.2513 3.41682C15.3726 2.89749 14.1566 3.24265 11.7278 3.93774C9.30526 4.62965 8.09243 4.9764 7.32609 5.8409C7.18992 5.99567 7.06604 6.15926 6.95559 6.33332Z" stroke="#333333" strokeWidth="2.375" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </TouchableOpacity>
-
           </View>
         </View>
         <Text style={styles.greeting}>
@@ -105,7 +107,13 @@ export default function HomeScreen() {
               <Path d="M10.8333 19.5V14.7333C10.8333 13.78 11.6133 13 12.5667 13H48.1C49.0533 13 49.8333 13.78 49.8333 14.7333V32.9333C49.8333 33.8867 49.0533 34.6667 48.1 34.6667H43.3333M6.06668 19.5H41.6C42.0597 19.5 42.5006 19.6826 42.8257 20.0077C43.1507 20.3327 43.3333 20.7736 43.3333 21.2333V39.4333C43.3333 39.893 43.1507 40.3339 42.8257 40.659C42.5006 40.9841 42.0597 41.1667 41.6 41.1667H6.06668C5.60697 41.1667 5.16609 40.9841 4.84103 40.659C4.51596 40.3339 4.33334 39.893 4.33334 39.4333V21.2333C4.33334 20.7736 4.51596 20.3327 4.84103 20.0077C5.16609 19.6826 5.60697 19.5 6.06668 19.5ZM26 30.3333C26 30.908 25.7717 31.4591 25.3654 31.8654C24.9591 32.2717 24.408 32.5 23.8333 32.5C23.2587 32.5 22.7076 32.2717 22.3013 31.8654C21.895 31.4591 21.6667 30.908 21.6667 30.3333C21.6667 29.7587 21.895 29.2076 22.3013 28.8013C22.7076 28.3949 23.2587 28.1667 23.8333 28.1667C24.408 28.1667 24.9591 28.3949 25.3654 28.8013C25.7717 29.2076 26 29.7587 26 30.3333Z" stroke="#0062CB" strokeWidth="3.25" strokeMiterlimit="10" strokeLinejoin="round" />
             </Svg>
 
-            <Text style={styles.actionText}>Daftar Rekening</Text>
+            <TouchableOpacity onPress={() => {
+              // Open rekening page
+              console.log('Open rekening page');
+              router.navigate('/saved-accounts');
+            }}>
+              <Text style={styles.actionText}>Daftar Rekening</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         </View>
 

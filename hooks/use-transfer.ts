@@ -22,7 +22,6 @@ export function useTransfer() {
     const [error, setError] = useState<string | null>(null);
 
     const transferToAccount = async (params: TransferToAccountParams) => {
-        console.log(params)
         setLoading(true);
         setError(null);
         try {
@@ -30,7 +29,6 @@ export function useTransfer() {
             return result;
         } catch (err: any) {
             setError(err?.response?.data?.message || err?.message || 'Transfer gagal');
-            console.log(err.response.data);
             throw err;
         } finally {
             setLoading(false);
@@ -87,7 +85,6 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
             transactionDate: toISOWithTimezone(transactionDate),
             additionalInfo: {},
         };
-        console.log(body);
         return api.post('/intrabank/transfer', body, { headers });
     } else {
         // Interbank transfer - use the exact structure as requested
@@ -111,7 +108,6 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
                 channel: 'mobilephone',
             },
         };
-        console.log(body);
         return api.post('/interbank/transfer', body, { headers });
     }
 }

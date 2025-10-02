@@ -38,7 +38,6 @@ export function useInquiry() {
             });
             return response;
         } catch (err: any) {
-            console.log(err);
             setError(
                 (!err.response || !err.response.data)
                     ? 'Terjadi kesalahan jaringan. Silakan coba lagi.'

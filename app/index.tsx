@@ -109,7 +109,6 @@ export default function HomeScreen() {
 
             <TouchableOpacity onPress={() => {
               // Open rekening page
-              console.log('Open rekening page');
               router.navigate('/saved-accounts');
             }}>
               <Text style={styles.actionText}>Daftar Rekening</Text>

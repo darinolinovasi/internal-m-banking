@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PinInput from '../components/PinInput';
 import PinKeypad from '../components/PinKeypad';
 import { useVerifyPin } from '../hooks/use-verify-pin';
@@ -19,9 +19,11 @@ export default function VerifyPinModal({
 }: VerifyPinModalProps) {
     const [pin, setPin] = useState('');
     const [sessionExpired, setSessionExpired] = useState(false);
+    const [error, setError] = useState('');
+    const [showErrorModal, setShowErrorModal] = useState(false);
 
     const router = useRouter();
-    const { verifyPin, loading, error } = useVerifyPin();
+    const { verifyPin, loading } = useVerifyPin();
 
     const handleKeypad = (val: string) => {
         if (pin.length < 6) setPin(pin + val);
@@ -39,7 +41,7 @@ export default function VerifyPinModal({
                     callback && callback();
                 }
             } catch (err: any) {
-                if (err?.response?.status === 401) {
+                if (err?.response?.status === 401 && err.response?.data?.error !== 'Invalid PIN') {
                     setPin('');
                     setSessionExpired(true);
                     setTimeout(async () => {
@@ -49,7 +51,13 @@ export default function VerifyPinModal({
                     }, 1500);
                     return;
                 }
-                Alert.alert('PIN Salah', error || 'PIN yang Anda masukkan salah.');
+
+                if (err?.response?.status === 401 && err.response?.data?.error === 'Invalid PIN') {
+                    setError('PIN yang Anda masukkan salah. Silakan coba lagi.');
+                    setShowErrorModal(true);
+                    setPin('');
+                    return;
+                }
                 setPin('');
             }
         };
@@ -88,20 +96,37 @@ export default function VerifyPinModal({
                             </View>
                         </View>
                     </Modal>
+                    <Modal
+                        visible={sessionExpired}
+                        transparent
+                        animationType="fade"
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>Sesi Berakhir</Text>
+                                <Text style={{ color: '#222', fontSize: 16, textAlign: 'center' }}>Sesi Anda telah berakhir. Silakan login kembali.</Text>
+                            </View>
+                        </View>
+                    </Modal>
+                    <Modal
+                        visible={showErrorModal}
+                        transparent
+                        animationType="fade"
+                        onRequestClose={() => setShowErrorModal(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>PIN Salah</Text>
+                                <Text style={{ color: '#222', fontSize: 16 }}>{error}</Text>
+                                <TouchableOpacity style={{ marginTop: 24 }} onPress={() => setShowErrorModal(false)}>
+                                    <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>Tutup</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
                 </View>
             </Modal>
-            <Modal
-                visible={sessionExpired}
-                transparent
-                animationType="fade"
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>Sesi Berakhir</Text>
-                        <Text style={{ color: '#222', fontSize: 16, textAlign: 'center' }}>Sesi Anda telah berakhir. Silakan login kembali.</Text>
-                    </View>
-                </View>
-            </Modal>
+
         </>
     );
 }
@@ -154,5 +179,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 200,
+        maxWidth: '80%'
     },
 });

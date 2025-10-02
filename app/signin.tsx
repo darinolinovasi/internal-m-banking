@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Rect } from 'react-native-svg';
 import VerifyPinModal from '../components/VerifyPinModal';
@@ -13,6 +13,8 @@ export default function SignInScreen() {
     const [showPassword, setShowPassword] = useState(false);
     const { signIn, loading, error } = useSignIn();
     const [pinModalVisible, setPinModalVisible] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
 
     const modalCallback = () => {
@@ -31,22 +33,38 @@ export default function SignInScreen() {
     }, []);
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            setErrorMessage('Email dan katasandi wajib diisi.');
+            setShowErrorModal(true);
+            return;
+        }
         try {
             const result = await signIn(email, password);
-            console.log('User data after login:', result);
             if (result.data.user.pin_created) {
                 setPinModalVisible(true);
             } else {
                 router.replace('/create-pin');
             }
         } catch (err) {
-            // Error is handled by the hook
+            setErrorMessage(error as string);
+            setShowErrorModal(true);
         }
     };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
             <VerifyPinModal visible={pinModalVisible} callback={modalCallback} />
+            <Modal visible={showErrorModal && !!errorMessage} transparent animationType="fade" onRequestClose={() => setShowErrorModal(false)}>
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
+                        <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>Login Gagal</Text>
+                        <Text style={{ color: '#222', fontSize: 16 }}>{errorMessage}</Text>
+                        <TouchableOpacity style={{ marginTop: 24 }} onPress={() => setShowErrorModal(false)}>
+                            <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>Tutup</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
             <View style={styles.container}>
                 <Text style={styles.title}>Masuk</Text>
                 <View style={{ marginTop: 40, width: '100%' }}>
@@ -86,7 +104,6 @@ export default function SignInScreen() {
                 <TouchableOpacity style={styles.signInButton} onPress={handleLogin} disabled={loading}>
                     <Text style={styles.signInButtonText}>{loading ? 'Loading...' : 'Masuk'}</Text>
                 </TouchableOpacity>
-                {error ? <Text style={{ color: 'red', marginTop: 12 }}>{error}</Text> : null}
                 <TouchableOpacity style={{ marginTop: 24 }}>
                     <Text style={styles.forgotText}>Lupa Katasandi? <Text style={styles.resetText}>Atur Ulang</Text></Text>
                 </TouchableOpacity>

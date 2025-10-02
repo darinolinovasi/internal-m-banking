@@ -49,11 +49,9 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
 
     const handlePaste = async () => {
         const text = await Clipboard.getStringAsync();
-        console.log('Pasted text:', text);
         // Only allow numbers, max 16 digits
         const sanitized = text.replace(/[^0-9]/g, '').slice(0, 16);
         setAccountNumber(sanitized);
-        console.log('Pasted text:', text);
     };
 
     // When keypad is used, blur the input so keypad is visible

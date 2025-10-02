@@ -21,10 +21,12 @@ export function useSignIn() {
             if (response.data?.data?.refresh_token) {
                 await AsyncStorage.setItem('refresh_token', response.data.data.refresh_token);
             }
-            console.log('Login successful:', response.data);
             return response.data;
         } catch (err: any) {
-            console.error('Login error:', err);
+            if (err.response?.status == 400 && err.response?.data?.error == 'invalid credentials') {
+                setError('Email atau password salah');
+                return;
+            }
             setError(err.response?.data?.message || 'Login gagal');
             throw err;
         } finally {

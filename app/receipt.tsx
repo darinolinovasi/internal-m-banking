@@ -17,7 +17,6 @@ export default function ReceiptScreen() {
     note = params.note || '';
     result = params.result || 'success';
     data = params.data ? JSON.parse(params.data as string) : null;
-    console.log(data)
     // Accept transfer response as JSON string param if available
     try {
         transferResponse = params.transferResponse ? JSON.parse(params.transferResponse as string) : null;

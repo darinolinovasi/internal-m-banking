@@ -21,7 +21,6 @@ export function useUpdatePin() {
             return response;
         } catch (err: any) {
             setError(err.response?.data?.message || 'Gagal membuat PIN');
-            console.log('Update PIN error:', err.response?.data);
             throw err;
         } finally {
             setLoading(false);

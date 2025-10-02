@@ -9,11 +9,13 @@ import { useVerifyPin } from '../hooks/use-verify-pin';
 interface VerifyPinModalProps {
     visible: boolean;
     callback?: () => void;
+    onClose?: () => void;
 }
 
 export default function VerifyPinModal({
     visible,
-    callback
+    callback,
+    onClose
 }: VerifyPinModalProps) {
     const [pin, setPin] = useState('');
     const [sessionExpired, setSessionExpired] = useState(false);
@@ -63,6 +65,7 @@ export default function VerifyPinModal({
                 animationType="slide"
                 transparent={false}
                 style={{ flex: 1, backgroundColor: '#001F3F' }}
+                onRequestClose={onClose}
             >
                 <View style={styles.container}>
                     <View></View>

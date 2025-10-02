@@ -17,6 +17,10 @@ export function useSignIn() {
             if (response.data?.data?.jwt) {
                 await AsyncStorage.setItem('jwt', response.data.data.jwt);
             }
+            // Save refresh_token to AsyncStorage
+            if (response.data?.data?.refresh_token) {
+                await AsyncStorage.setItem('refresh_token', response.data.data.refresh_token);
+            }
             console.log('Login successful:', response.data);
             return response.data;
         } catch (err: any) {

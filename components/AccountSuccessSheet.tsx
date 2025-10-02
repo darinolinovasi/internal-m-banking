@@ -105,6 +105,7 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
             <VerifyPinModal
                 visible={showPinModal}
                 callback={handleSaveAccount}
+                onClose={() => setShowPinModal(false)}
             />
             <Modal visible={showSuccessModal} transparent animationType="fade">
                 <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>

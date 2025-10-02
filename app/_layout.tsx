@@ -42,6 +42,7 @@ export default function RootLayout() {
         <Stack.Screen name="update-pin" options={{ headerShown: false }} />
         <Stack.Screen name="saved-accounts" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="receipt" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />

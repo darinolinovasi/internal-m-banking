@@ -1,8 +1,10 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 export default function BottomNavbar() {
+    const router = useRouter();
     return (
         <View style={styles.bottomNav}>
             <TouchableOpacity style={styles.navItem}>
@@ -19,7 +21,7 @@ export default function BottomNavbar() {
                 <Text style={styles.navLabel}>Transaksi</Text>
             </TouchableOpacity>
             <View style={styles.centerNavItemWrapper}>
-                <TouchableOpacity style={styles.centerNavItem}>
+                <TouchableOpacity style={styles.centerNavItem} onPress={() => router.navigate('/saved-accounts')}>
                     <Svg width="46" height="46" viewBox="0 0 46 46" fill="none">
                         <Path fillRule="evenodd" clipRule="evenodd" d="M35.4008 25.8175C35.6704 25.5483 36.0357 25.3971 36.4167 25.3971C36.7976 25.3971 37.163 25.5483 37.4325 25.8175L41.2658 29.6508C41.4071 29.7824 41.5204 29.9411 41.5989 30.1175C41.6775 30.2938 41.7197 30.4841 41.7231 30.6772C41.7265 30.8702 41.691 31.0619 41.6187 31.2409C41.5464 31.4199 41.4388 31.5825 41.3023 31.719C41.1658 31.8555 41.0032 31.9631 40.8242 32.0354C40.6452 32.1077 40.4535 32.1432 40.2605 32.1398C40.0675 32.1364 39.8771 32.0941 39.7008 32.0156C39.5245 31.937 39.3658 31.8237 39.2342 31.6825L37.8542 30.3025V38.3333C37.8542 38.7146 37.7027 39.0802 37.4331 39.3498C37.1636 39.6194 36.7979 39.7708 36.4167 39.7708C36.0354 39.7708 35.6698 39.6194 35.4002 39.3498C35.1306 39.0802 34.9792 38.7146 34.9792 38.3333V30.3025L33.5992 31.6825C33.4676 31.8237 33.3089 31.937 33.1325 32.0156C32.9562 32.0941 32.7659 32.1364 32.5728 32.1398C32.3798 32.1432 32.1881 32.1077 32.0091 32.0354C31.8301 31.9631 31.6675 31.8555 31.531 31.719C31.3945 31.5825 31.2869 31.4199 31.2146 31.2409C31.1423 31.0619 31.1068 30.8702 31.1102 30.6772C31.1136 30.4841 31.1559 30.2938 31.2344 30.1175C31.313 29.9411 31.4263 29.7824 31.5675 29.6508L35.4008 25.8175Z" fill="white" />
                         <Path d="M19.1667 7.66666H26.8333C34.0611 7.66666 37.6759 7.66666 39.9203 9.91299C41.538 11.5287 41.9903 13.8556 42.1168 17.7292H3.88316C4.00966 13.8556 4.462 11.5287 6.07966 9.91299C8.32408 7.66666 11.9389 7.66666 19.1667 7.66666Z" fill="white" />

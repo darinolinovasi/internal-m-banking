@@ -25,7 +25,6 @@ export default function SignInScreen() {
             const jwt = await AsyncStorage.getItem('jwt');
             if (jwt) {
                 setPinModalVisible(true);
-                // router.replace('/verify-pin');
             }
         };
         checkJwt();

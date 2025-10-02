@@ -1,13 +1,17 @@
 import AccountNumberInputSheet from '@/components/AccountNumberInputSheet';
 import BankListSheet from '@/components/BankListSheet';
 import { useSavedAccounts } from '@/hooks/use-saved-accounts';
+import { useTransfer } from '@/hooks/use-transfer';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { useRouter } from 'expo-router';
 import pkg from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FlatList, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import TransferRekeningSheet from '../components/TransferRekeningSheet';
+import VerifyPinModal from '../components/VerifyPinModal';
 
 const { debounce } = pkg;
 
@@ -17,9 +21,20 @@ export default function SavedAccountsScreen() {
     const [showSheet, setShowSheet] = useState(false);
     const [selectedBank, setSelectedBank] = useState<any>(null);
     const [accountNumber, setAccountNumber] = useState('');
+    const [viewAccount, setViewAccount] = useState<any>(null);
+    const [editAmount, setEditAmount] = useState(false);
+    const [editNote, setEditNote] = useState(false);
+    const [tempAmount, setTempAmount] = useState('0');
+    const [tempNote, setTempNote] = useState('Rekening Karyawan');
+    const [showVerifyPin, setShowVerifyPin] = useState(false);
+    const [isTransferring, setIsTransferring] = useState(false);
+    const [transferResult, setTransferResult] = useState<{ success: boolean; message: string } | null>(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const bottomSheetRef = useRef<BottomSheet>(null);
     const snapPoints = useMemo(() => ['100%'], []);
     const { accounts, loading, error, refetch } = useSavedAccounts();
+    const { transferToAccount, loading: transferLoading, error: transferError } = useTransfer();
+    const router = useRouter();
 
     // Debounce handlers (no useEffect)
     const debouncedSetSearch = React.useMemo(() => debounce((val: string) => setDebouncedSearch(val), 300), []);
@@ -67,8 +82,67 @@ export default function SavedAccountsScreen() {
         refetch(); // Refresh the saved accounts list
     };
 
+    // Handler for after PIN is verified
+    const handlePinVerified = async () => {
+        setShowVerifyPin(false);
+        if (!viewAccount) return;
+        // Validate minimum amount
+        const cleanAmount = String(tempAmount).replace(/[^\d]/g, '');
+        if (!cleanAmount || Number(cleanAmount) < 10000) {
+            setTransferResult({ success: false, message: 'Nominal transfer minimal Rp 10.000' });
+            return;
+        }
+        setIsTransferring(true);
+        setTransferResult(null);
+        try {
+            const response = await transferToAccount({
+                account: viewAccount,
+                amount: cleanAmount,
+                note: tempNote,
+                partnerReferenceNo: '20211130000000001',
+                customerReference: '10052023',
+                sourceAccountNo: '988901000187608',
+                transactionDate: "2021-11-24T10:30:24+07:00",
+                // The following are not used for interbank, but required for intrabank signature
+                originatorCustomerNo: '',
+                originatorCustomerName: '',
+                originatorBankCode: '',
+            });
+            setTransferResult({ success: true, message: 'Transfer berhasil!' });
+            setShowSuccessModal(true);
+            setTimeout(() => {
+                setShowSuccessModal(false);
+                router.replace({
+                    pathname: '/receipt', params: {
+                        account: JSON.stringify(viewAccount),
+                        data: JSON.stringify(response.data.data),
+                        amount: cleanAmount,
+                        note: tempNote,
+                        result: 'success',
+                    }
+                });
+            }, 1000);
+        } catch (err: any) {
+            setTransferResult({ success: false, message: transferError || err?.response?.data?.message || 'Transfer gagal' });
+        } finally {
+            setIsTransferring(false);
+        }
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
+            <VerifyPinModal visible={showVerifyPin} callback={handlePinVerified} onClose={() => setShowVerifyPin(false)} />
+            {showSuccessModal && (
+                <View style={{ position: 'absolute', zIndex: 9999, left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
+                        <Svg width={48} height={48} viewBox="0 0 24 24" fill="none">
+                            <Path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#C7EECF" />
+                            <Path d="M8 12.5L11 15.5L16 10.5" stroke="#1B5E20" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                        </Svg>
+                        <Text style={{ fontSize: 18, color: '#178AFF', fontWeight: 'bold', marginTop: 12 }}>Transfer Berhasil</Text>
+                    </View>
+                </View>
+            )}
             <GestureHandlerRootView style={styles.container}>
                 <View style={{ flex: 1, backgroundColor: '#EFEFEF' }}>
                     <View style={styles.searchBarWrapper}>
@@ -99,26 +173,45 @@ export default function SavedAccountsScreen() {
                             keyExtractor={item => item.id?.toString() || item.account_number}
                             contentContainerStyle={{ paddingHorizontal: 8 }}
                             renderItem={({ item }) => (
-                                <View style={styles.accountCard}>
-                                    <View style={styles.avatar} />
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={styles.accountName}>{item.account_holder_name}</Text>
-                                        <Text style={styles.accountBank}>{item.bank?.bank_name}</Text>
-                                        <Text style={styles.accountNumber}>{item.account_number}</Text>
-                                        {item.note ? <Text style={{}}>{item.note}</Text> : null}
+                                <TouchableOpacity onPress={() => setViewAccount(item)}>
+                                    <View style={styles.accountCard}>
+                                        <View style={styles.avatar} />
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.accountName}>{item.account_holder_name}</Text>
+                                            <Text style={styles.accountBank}>{item.bank?.bank_name}</Text>
+                                            <Text style={styles.accountNumber}>{item.account_number}</Text>
+                                            {item.note ? <Text style={{}}>{item.note}</Text> : null}
+                                        </View>
+                                        <TouchableOpacity>
+                                            <Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
+                                                <Path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" stroke="#BFC6D1" strokeWidth={2} strokeLinejoin="round" fill={item.favorite ? '#FFD700' : 'none'} />
+                                            </Svg>
+                                        </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity>
-                                        <Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
-                                            <Path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" stroke="#BFC6D1" strokeWidth={2} strokeLinejoin="round" fill={item.favorite ? '#FFD700' : 'none'} />
-                                        </Svg>
-                                    </TouchableOpacity>
-                                </View>
+                                </TouchableOpacity>
                             )}
                         />
                     )}
                     <TouchableOpacity style={styles.fab} onPress={() => setShowSheet(true)}>
                         <Text style={styles.fabText}>+</Text>
                     </TouchableOpacity>
+                    {
+                        viewAccount && (
+                            <TransferRekeningSheet
+                                visible={!!viewAccount}
+                                account={viewAccount}
+                                editAmount={editAmount}
+                                setEditAmount={setEditAmount}
+                                tempAmount={tempAmount}
+                                setTempAmount={setTempAmount}
+                                editNote={editNote}
+                                setEditNote={setEditNote}
+                                tempNote={tempNote}
+                                setTempNote={setTempNote}
+                                onClose={() => setViewAccount(null)}
+                                onTransfer={() => setShowVerifyPin(true)}
+                            />)
+                    }
                     {showSheet && (
                         <BottomSheet
                             ref={bottomSheetRef}
@@ -320,5 +413,18 @@ const styles = StyleSheet.create({
         fontSize: 28,
         color: '#222',
         fontWeight: 'bold',
+    },
+    submitButton: {
+        width: '100%',
+        backgroundColor: '#178AFF',
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    submitButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });

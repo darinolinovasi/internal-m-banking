@@ -1,3 +1,4 @@
+import { Logos } from '@/assets/logos';
 import AccountNumberInputSheet from '@/components/AccountNumberInputSheet';
 import BankListSheet from '@/components/BankListSheet';
 import { useSavedAccounts } from '@/hooks/use-saved-accounts';
@@ -175,7 +176,9 @@ export default function SavedAccountsScreen() {
                             renderItem={({ item }) => (
                                 <TouchableOpacity onPress={() => setViewAccount(item)}>
                                     <View style={styles.accountCard}>
-                                        <View style={styles.avatar} />
+                                        <View style={styles.avatar} >
+                                            {Logos[item.bank?.bank_code] || <View style={{ width: 44, height: 44, backgroundColor: '#E2E8F0', borderRadius: 8 }} />}
+                                        </View>
                                         <View style={{ flex: 1 }}>
                                             <Text style={styles.accountName}>{item.account_holder_name}</Text>
                                             <Text style={styles.accountBank}>{item.bank?.bank_name}</Text>
@@ -308,7 +311,6 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 8,
-        backgroundColor: '#D9D9D9',
         marginRight: 14,
     },
     accountName: {

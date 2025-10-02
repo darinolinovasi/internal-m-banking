@@ -1,3 +1,5 @@
+
+import { Logos } from '@/assets/logos';
 import { useBankCodes } from '@/hooks/use-bank-codes';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import pkg from 'lodash';
@@ -9,6 +11,8 @@ const { debounce } = pkg;
 interface BankListSheetProps {
     onBankPress: (bank: any) => void;
 }
+
+
 
 export default function BankListSheet({ onBankPress }: BankListSheetProps) {
     const { banks, loading, error } = useBankCodes();
@@ -48,7 +52,10 @@ export default function BankListSheet({ onBankPress }: BankListSheetProps) {
                     keyExtractor={(item: any) => item.bank_code}
                     renderItem={({ item }: any) => (
                         <TouchableOpacity onPress={() => onBankPress(item)} style={styles.bankItem}>
-                            <View style={styles.bankLogoPlaceholder} />
+                            <View style={styles.bankLogoPlaceholder} >
+                                {/* <BcaLogo /> */}
+                                {Logos[item.bank_code] || <View style={{ width: 48, height: 48, backgroundColor: '#E2E8F0', borderRadius: 10 }} />}
+                            </View>
                             <Text style={styles.bankName}>{item.bank_name}</Text>
                         </TouchableOpacity>
                     )}
@@ -104,7 +111,6 @@ const styles = StyleSheet.create({
         height: 48,
         marginRight: 16,
         borderRadius: 10,
-        backgroundColor: '#D9D9D9',
     },
     bankName: {
         fontSize: 14,

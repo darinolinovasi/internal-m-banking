@@ -2,6 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import '../utils/i18n'; // Import i18n config for localization
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Inter_700Bold_Italic, Inter_900Black_Italic, useFonts } from '@expo-google-fonts/inter';

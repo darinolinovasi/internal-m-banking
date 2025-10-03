@@ -1,0 +1,16 @@
+{
+    "hello": "こんにちは",
+    "change_account": "口座を変更",
+    "ptdii": "PTDII",
+    "select_language": "言語を選択",
+    "bahasa_indonesia": "インドネシア語",
+    "english": "英語",
+    "japanese": "日本語",
+    "cancel": "キャンセル",
+    "saldo_aktif": "有効残高",
+    "mutasi_rekening": "口座の取引履歴",
+    "daftar_notifikasi": "通知リスト",
+    "daftar_reimburse": "リインバースリスト",
+    "daftar_rekening": "口座リスト",
+    "rekening": "口座"
+}

@@ -1,0 +1,16 @@
+{
+    "hello": "Hello",
+    "change_account": "Change Account",
+    "ptdii": "PTDII",
+    "select_language": "Select Language",
+    "bahasa_indonesia": "Bahasa Indonesia",
+    "english": "English",
+    "japanese": "Japanese",
+    "cancel": "Cancel",
+    "saldo_aktif": "Active Balance",
+    "mutasi_rekening": "Account Mutation",
+    "daftar_notifikasi": "Notification List",
+    "daftar_reimburse": "Reimburse List",
+    "daftar_rekening": "Account List",
+    "rekening": "Account"
+}

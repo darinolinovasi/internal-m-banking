@@ -1,27 +1,35 @@
 import BottomNavbar from '@/components/BottomNavbar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import i18n from '../utils/i18n';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleChangeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    setModalVisible(false);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logo}>PTDII</Text>
+          <Text style={styles.logo}>{t('ptdii')}</Text>
           <View style={styles.headerIcons}>
             <TouchableOpacity>
-              <Svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+              <Svg width="38" height="38" viewBox="0 0 38 38" fill="none" onPress={() => setModalVisible(true)}>
                 <Path d="M3.16666 19C3.16666 27.7447 10.2552 34.8333 19 34.8333C27.7447 34.8333 34.8333 27.7447 34.8333 19C34.8333 10.2552 27.7447 3.16666 19 3.16666C10.2552 3.16666 3.16666 10.2552 3.16666 19Z" stroke="#333333" strokeWidth="2.375" strokeLinecap="round" strokeLinejoin="round" />
                 <Path d="M20.5833 3.24582C20.5833 3.24582 25.3333 9.49999 25.3333 19C25.3333 28.5 20.5833 34.7542 20.5833 34.7542M17.4167 34.7542C17.4167 34.7542 12.6667 28.5 12.6667 19C12.6667 9.49999 17.4167 3.24582 17.4167 3.24582M4.16415 24.5417H33.8358M4.16415 13.4583H33.8358" stroke="#333333" strokeWidth="2.375" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
-
             </TouchableOpacity>
             <TouchableOpacity>
               <Svg width="38" height="38" viewBox="0 0 38 38" fill="none" >
@@ -31,8 +39,32 @@ export default function HomeScreen() {
           </View>
         </View>
         <Text style={styles.greeting}>
-          HALO, <Text style={styles.greetingName}>TAKUYA OHSAWA</Text>
+          {t('hello')}, <Text style={styles.greetingName}>TAKUYA OHSAWA</Text>
         </Text>
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+            <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, minWidth: 220 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 16 }}>{t('select_language')}</Text>
+              <Pressable onPress={() => handleChangeLanguage('id')} style={{ padding: 10 }}>
+                <Text>{t('bahasa_indonesia')}</Text>
+              </Pressable>
+              <Pressable onPress={() => handleChangeLanguage('en')} style={{ padding: 10 }}>
+                <Text>{t('english')}</Text>
+              </Pressable>
+              <Pressable onPress={() => handleChangeLanguage('jp')} style={{ padding: 10 }}>
+                <Text>{t('japanese')}</Text>
+              </Pressable>
+              <Pressable onPress={() => setModalVisible(false)} style={{ padding: 10, marginTop: 8 }}>
+                <Text style={{ color: 'red' }}>{t('cancel')}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
 
         {/* Account Card */}
         <View style={styles.accountCard}>
@@ -46,10 +78,10 @@ export default function HomeScreen() {
               <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
                 <Path d="M4.2 4.79999C3.72261 4.79999 3.26477 4.98963 2.92721 5.3272C2.58964 5.66476 2.4 6.1226 2.4 6.59999V15C2.4 15.4774 2.58964 15.9352 2.92721 16.2728C3.26477 16.6103 3.72261 16.8 4.2 16.8H17.4C17.8774 16.8 18.3352 16.6103 18.6728 16.2728C19.0104 15.9352 19.2 15.4774 19.2 15V6.59999C19.2 6.1226 19.0104 5.66476 18.6728 5.3272C18.3352 4.98963 17.8774 4.79999 17.4 4.79999H4.2ZM7.2 5.99999V7.19999C7.2 7.83651 6.94714 8.44696 6.49706 8.89704C6.04697 9.34713 5.43652 9.59999 4.8 9.59999H3.6V8.39999H4.8C5.11826 8.39999 5.42348 8.27356 5.64853 8.04852C5.87357 7.82347 6 7.51825 6 7.19999V5.99999H7.2ZM10.8 12.9C10.243 12.9 9.7089 12.6787 9.31508 12.2849C8.92125 11.8911 8.7 11.3569 8.7 10.8C8.7 10.243 8.92125 9.70889 9.31508 9.31506C9.7089 8.92124 10.243 8.69999 10.8 8.69999C11.357 8.69999 11.8911 8.92124 12.2849 9.31506C12.6788 9.70889 12.9 10.243 12.9 10.8C12.9 11.3569 12.6788 11.8911 12.2849 12.2849C11.8911 12.6787 11.357 12.9 10.8 12.9ZM3.6 13.2V12H4.8C5.43652 12 6.04697 12.2528 6.49706 12.7029C6.94714 13.153 7.2 13.7635 7.2 14.4V15.6H6V14.4C6 14.0817 5.87357 13.7765 5.64853 13.5515C5.42348 13.3264 5.11826 13.2 4.8 13.2H3.6ZM16.8 13.2C16.4817 13.2 16.1765 13.3264 15.9515 13.5515C15.7264 13.7765 15.6 14.0817 15.6 14.4V15.6H14.4V14.4C14.4 13.7635 14.6529 13.153 15.1029 12.7029C15.553 12.2528 16.1635 12 16.8 12H18V13.2H16.8ZM16.8 8.39999H18V9.59999H16.8C16.1635 9.59999 15.553 9.34713 15.1029 8.89704C14.6529 8.44696 14.4 7.83651 14.4 7.19999V5.99999H15.6V7.19999C15.6 7.51825 15.7264 7.82347 15.9515 8.04852C16.1765 8.27356 16.4817 8.39999 16.8 8.39999ZM20.4 15C20.4 15.7956 20.0839 16.5587 19.5213 17.1213C18.9587 17.6839 18.1957 18 17.4 18H4.902C5.02613 18.3511 5.2561 18.655 5.56021 18.87C5.86432 19.0849 6.22761 19.2002 6.6 19.2H17.4C18.5139 19.2 19.5822 18.7575 20.3699 17.9698C21.1575 17.1822 21.6 16.1139 21.6 15V8.99999C21.6002 8.6276 21.4849 8.26431 21.27 7.9602C21.055 7.65609 20.7511 7.42612 20.4 7.30199V15Z" fill="white" />
               </Svg>
-              <Text style={styles.changeAccountText}>Ubah Rekening</Text>
+              <Text style={styles.changeAccountText}>{t('change_account')}</Text>
             </TouchableOpacity>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={styles.accountNumberLabel}>Rekening: <Text style={styles.accountNumber}>111223334445555</Text></Text>
+              <Text style={styles.accountNumberLabel}>{t('rekening')}: <Text style={styles.accountNumber}>111223334445555</Text></Text>
               <TouchableOpacity>
                 <Svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <Path d="M5 9.16666C5 6.80999 5 5.63082 5.7325 4.89916C6.46417 4.16666 7.64333 4.16666 10 4.16666H12.5C14.8567 4.16666 16.0358 4.16666 16.7675 4.89916C17.5 5.63082 17.5 6.80999 17.5 9.16666V13.3333C17.5 15.69 17.5 16.8692 16.7675 17.6008C16.0358 18.3333 14.8567 18.3333 12.5 18.3333H10C7.64333 18.3333 6.46417 18.3333 5.7325 17.6008C5 16.8692 5 15.69 5 13.3333V9.16666Z" stroke="white" strokeWidth="1.5" />
@@ -61,7 +93,7 @@ export default function HomeScreen() {
           <View style={{ padding: 16 }}>
             <View style={styles.balanceRow}>
               <View>
-                <Text style={styles.balanceLabel}>Saldo Aktif</Text>
+                <Text style={styles.balanceLabel}>{t('saldo_aktif')}</Text>
                 <Text style={styles.balanceValue}>IDR 10,000,000,000.00</Text>
               </View>
               <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -76,7 +108,7 @@ export default function HomeScreen() {
                 <Path d="M21 22L19.286 20.286M19.857 17.429C19.8648 17.8842 19.7818 18.3363 19.613 18.7591C19.4442 19.1819 19.1929 19.5668 18.8738 19.8914C18.5546 20.2161 18.1741 20.4739 17.7542 20.6499C17.3344 20.8259 16.8837 20.9166 16.4285 20.9166C15.9733 20.9166 15.5226 20.8259 15.1028 20.6499C14.6829 20.4739 14.3024 20.2161 13.9832 19.8914C13.6641 19.5668 13.4128 19.1819 13.244 18.7591C13.0752 18.3363 12.9922 17.8842 13 17.429C13.0154 16.5299 13.3833 15.6727 14.0246 15.0423C14.6659 14.4118 15.5292 14.0586 16.4285 14.0586C17.3278 14.0586 18.1911 14.4118 18.8324 15.0423C19.4737 15.6727 19.8416 16.5299 19.857 17.429Z" stroke="#0062CB" strokeWidth="1.5" strokeLinecap="round" />
                 <Path d="M7 7H15M7 11H11" stroke="#0062CB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
-              <Text style={styles.mutasiText}>Mutasi Rekening</Text>
+              <Text style={styles.mutasiText}>{t('mutasi_rekening')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -91,7 +123,7 @@ export default function HomeScreen() {
                 d="M44.688 5.688c-.194 0-.392.035-.59.116l-29.27 11.761H6.5c-.447 0-.813.376-.813.843v15.184c0 .467.366.843.813.843h5.165a6.09 6.09 0 00-.29 1.848c0 3.347 2.732 6.069 6.094 6.069a6.105 6.105 0 005.885-4.49l20.75 8.339c.198.076.396.117.589.117.858 0 1.625-.721 1.625-1.686V7.373c-.005-.964-.767-1.686-1.63-1.686zM17.468 38.71a2.433 2.433 0 01-2.437-2.428c0-.569.198-1.112.559-1.544l4.311 1.732a2.444 2.444 0 01-2.432 2.24zm25.188 2.965L16.19 31.043l-.655-.264h-6.19V21.22h6.19l.655-.264 26.467-10.633v31.352z"
                 fill="#0062CB" />
             </Svg>
-            <Text style={styles.actionText}>Daftar Notifikasi</Text>
+            <Text style={styles.actionText}>{t('daftar_notifikasi')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
             <Svg width="52" height="52" viewBox="0 0 52 52" fill="none">
@@ -99,7 +131,7 @@ export default function HomeScreen() {
               <Path d="M46.2871 35.5824C46.269 35.5319 46.241 35.4855 46.2048 35.4459C46.1687 35.4063 46.125 35.3742 46.0764 35.3515C46.0278 35.3289 45.9751 35.3161 45.9215 35.3139C45.8679 35.3117 45.8144 35.3201 45.7641 35.3387L42.6562 36.4711V9.14062C42.6562 7.23125 41.1125 5.6875 39.2031 5.6875H12.7969C10.8875 5.6875 9.34375 7.23125 9.34375 9.14062V36.4711L6.23086 35.3387C6.18516 35.3234 6.13945 35.3133 6.09375 35.3133C5.87031 35.3133 5.6875 35.4961 5.6875 35.7195V38.7461C5.6875 38.9137 5.79414 39.066 5.95664 39.1269L25.4414 46.216C25.802 46.348 26.193 46.348 26.5535 46.216L46.0434 39.132C46.2059 39.0711 46.3125 38.9187 46.3125 38.7512V35.7246C46.3125 35.6738 46.3023 35.6281 46.2871 35.5824ZM39 37.8016L26 42.5293L13 37.8016V9.34375H39V37.8016Z" fill="#0062CB" />
               <Path d="M23.3797 26.1727H20.4852C20.2617 26.1727 20.0789 26.3555 20.0789 26.5789V27.9551C20.0789 28.1785 20.2617 28.3613 20.4852 28.3613H24.3445V30.3418H20.4852C20.2617 30.3418 20.0789 30.5246 20.0789 30.748V32.1242C20.0789 32.3477 20.2617 32.5305 20.4852 32.5305H24.3445V35.75C24.3445 35.9734 24.5273 36.1562 24.7508 36.1562H27.2848C27.5082 36.1562 27.691 35.9734 27.691 35.75V32.5254H31.5656C31.7891 32.5254 31.9719 32.3426 31.9719 32.1191V30.743C31.9719 30.5195 31.7891 30.3367 31.5656 30.3367H27.691V28.3563H31.5656C31.7891 28.3563 31.9719 28.1734 31.9719 27.95V26.5738C31.9719 26.3504 31.7891 26.1676 31.5656 26.1676H28.6406L33.9066 16.4379C33.9371 16.377 33.9574 16.3109 33.9574 16.2449C33.9523 16.0266 33.7695 15.8438 33.5461 15.8438H30.7785C30.6262 15.8438 30.484 15.9301 30.418 16.0672L26.1168 24.6391H25.9492L21.648 16.0672C21.6144 16.0003 21.5629 15.9441 21.4993 15.9047C21.4356 15.8652 21.3624 15.8442 21.2875 15.8438H18.459C18.393 15.8438 18.327 15.859 18.266 15.8945C18.068 16.0012 17.9969 16.25 18.1035 16.443L23.3797 26.1727Z" fill="#0062CB" />
             </Svg>
-            <Text style={styles.actionText}>Daftar Reimburse</Text>
+            <Text style={styles.actionText}>{t('daftar_reimburse')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn}>
             <Svg width="52" height="52" viewBox="0 0 52 52" fill="none">
@@ -111,50 +143,10 @@ export default function HomeScreen() {
               // Open rekening page
               router.navigate('/saved-accounts');
             }}>
-              <Text style={styles.actionText}>Daftar Rekening</Text>
+              <Text style={styles.actionText}>{t('daftar_rekening')}</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </View>
-
-        {/* Menunggu Pembayaran */}
-        {/* <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Menunggu Pembayaran</Text>
-          <TouchableOpacity>
-            <Text style={styles.sectionLink}>Lihat Lainnya</Text>
-          </TouchableOpacity>
-        </View>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 80 }}>
-          <View style={styles.paymentCard}>
-            <View>
-              <Text style={styles.paymentTitle}>Pembayaran Wazapbro</Text>
-              <Text style={styles.paymentDesc}>Disbursement • VA</Text>
-            </View>
-            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end' }}>
-              <Text style={styles.paymentAmount}>IDR </Text>
-              <Text style={{ ...styles.paymentAmountValue, ...styles.paymentAmount }}>1,500,000.00</Text>
-            </View>
-          </View>
-          <View style={styles.paymentCard}>
-            <View>
-              <Text style={styles.paymentTitle}>Biaya Reimburse Alif Firdi</Text>
-              <Text style={styles.paymentDesc}>Reimbursement • Transfer Bank</Text>
-            </View>
-            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end' }}>
-              <Text style={styles.paymentAmount}>IDR </Text>
-              <Text style={{ ...styles.paymentAmountValue, ...styles.paymentAmount }}>600,000.00</Text>
-            </View>
-          </View>
-          <View style={styles.paymentCard}>
-            <View>
-              <Text style={styles.paymentTitle}>Pembayaran Tokopedia</Text>
-              <Text style={styles.paymentDesc}>Disbursement • VA</Text>
-            </View>
-            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end' }}>
-              <Text style={styles.paymentAmount}>IDR </Text>
-              <Text style={{ ...styles.paymentAmountValue, ...styles.paymentAmount }}>1,850,000.00</Text>
-            </View>
-          </View>
-        </ScrollView> */}
       </View>
       {/* Bottom Navbar */}
       <BottomNavbar />

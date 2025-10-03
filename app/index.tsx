@@ -232,7 +232,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
             <View style={{ borderBottomWidth: 0.5, borderColor: "#000" }} />
-            <TouchableOpacity style={styles.mutasiBtn}>
+            <TouchableOpacity style={styles.mutasiBtn} onPress={() => router.navigate('/mutasi-rekening')}>
               <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <Path d="M19 11V10C19 6.229 19 4.343 17.828 3.172C16.656 2.001 14.771 2 11 2C7.229 2 5.343 2 4.172 3.172C3.001 4.344 3 6.229 3 10V14C3 17.771 3 19.657 4.172 20.828C5.344 21.999 7.229 22 11 22" stroke="#0062CB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 <Path d="M21 22L19.286 20.286M19.857 17.429C19.8648 17.8842 19.7818 18.3363 19.613 18.7591C19.4442 19.1819 19.1929 19.5668 18.8738 19.8914C18.5546 20.2161 18.1741 20.4739 17.7542 20.6499C17.3344 20.8259 16.8837 20.9166 16.4285 20.9166C15.9733 20.9166 15.5226 20.8259 15.1028 20.6499C14.6829 20.4739 14.3024 20.2161 13.9832 19.8914C13.6641 19.5668 13.4128 19.1819 13.244 18.7591C13.0752 18.3363 12.9922 17.8842 13 17.429C13.0154 16.5299 13.3833 15.6727 14.0246 15.0423C14.6659 14.4118 15.5292 14.0586 16.4285 14.0586C17.3278 14.0586 18.1911 14.4118 18.8324 15.0423C19.4737 15.6727 19.8416 16.5299 19.857 17.429Z" stroke="#0062CB" strokeWidth="1.5" strokeLinecap="round" />

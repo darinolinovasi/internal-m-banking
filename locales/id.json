@@ -13,6 +13,10 @@
     "daftar_reimburse": "Daftar Reimburse",
     "daftar_rekening": "Daftar Rekening",
     "rekening": "Rekening",
+    "back": "Kembali",
+    "account_security": "Akun dan Keamanan",
+    "change_pin": "Ubah PIN",
+    "change_password": "Ubah Kata Sandi",
     "navbar": {
         "home": "Beranda",
         "transactions": "Transaksi",

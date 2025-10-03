@@ -13,6 +13,10 @@
     "daftar_reimburse": "リインバースリスト",
     "daftar_rekening": "口座リスト",
     "rekening": "口座",
+    "back": "戻る",
+    "account_security": "アカウントとセキュリティ",
+    "change_pin": "PINを変更",
+    "change_password": "パスワードを変更",
     "navbar": {
         "home": "ホーム",
         "transactions": "取引",

@@ -13,6 +13,10 @@
     "daftar_reimburse": "Reimburse List",
     "daftar_rekening": "Account List",
     "rekening": "Account",
+    "back": "Back",
+    "account_security": "Account & Security",
+    "change_pin": "Change PIN",
+    "change_password": "Change Password",
     "navbar": {
         "home": "Home",
         "transactions": "Transactions",

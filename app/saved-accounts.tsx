@@ -6,8 +6,9 @@ import { useTransfer } from '@/hooks/use-transfer';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import pkg from 'lodash';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, FlatList, Keyboard, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
@@ -17,6 +18,7 @@ import VerifyPinModal from '../components/VerifyPinModal';
 const { debounce } = pkg;
 
 export default function SavedAccountsScreen() {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [showSheet, setShowSheet] = useState(false);
@@ -26,13 +28,14 @@ export default function SavedAccountsScreen() {
     const [editAmount, setEditAmount] = useState(false);
     const [editNote, setEditNote] = useState(false);
     const [tempAmount, setTempAmount] = useState('0');
-    const [tempNote, setTempNote] = useState('Rekening Karyawan');
+    const [tempNote, setTempNote] = useState('Catatan transfer');
     const [showVerifyPin, setShowVerifyPin] = useState(false);
     const [isTransferring, setIsTransferring] = useState(false);
     const [transferResult, setTransferResult] = useState<{ success: boolean; message: string } | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
     const bottomSheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ['100%'], []);
+    const snapPoints = ['100%'];
     const { accounts, loading, error, refetch } = useSavedAccounts();
     const { transferToAccount, loading: transferLoading, error: transferError } = useTransfer();
     const router = useRouter();
@@ -89,8 +92,10 @@ export default function SavedAccountsScreen() {
         if (!viewAccount) return;
         // Validate minimum amount
         const cleanAmount = String(tempAmount).replace(/[^\d]/g, '');
+        const noteToSend = tempNote ? tempNote : '';
         if (!cleanAmount || Number(cleanAmount) < 10000) {
             setTransferResult({ success: false, message: 'Nominal transfer minimal Rp 10.000' });
+            setShowErrorModal(true);
             return;
         }
         setIsTransferring(true);
@@ -99,7 +104,7 @@ export default function SavedAccountsScreen() {
             const response = await transferToAccount({
                 account: viewAccount,
                 amount: cleanAmount,
-                note: tempNote,
+                note: noteToSend,
                 partnerReferenceNo: '20211130000000001',
                 customerReference: '10052023',
                 sourceAccountNo: '988901000187608',
@@ -124,7 +129,8 @@ export default function SavedAccountsScreen() {
                 });
             }, 1000);
         } catch (err: any) {
-            setTransferResult({ success: false, message: transferError || err?.response?.data?.message || 'Transfer gagal' });
+            setTransferResult({ success: false, message: transferError || err?.response?.data?.error?.responseMessage || 'Transfer gagal' });
+            setShowErrorModal(true);
         } finally {
             setIsTransferring(false);
         }
@@ -140,7 +146,7 @@ export default function SavedAccountsScreen() {
                             <Path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#C7EECF" />
                             <Path d="M8 12.5L11 15.5L16 10.5" stroke="#1B5E20" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                         </Svg>
-                        <Text style={{ fontSize: 18, color: '#178AFF', fontWeight: 'bold', marginTop: 12 }}>Transfer Berhasil</Text>
+                        <Text style={{ fontSize: 18, color: '#178AFF', fontWeight: 'bold', marginTop: 12 }}>{t('transfer_success')}</Text>
                     </View>
                 </View>
             )}
@@ -153,21 +159,27 @@ export default function SavedAccountsScreen() {
                             </Svg>
                             <TextInput
                                 style={styles.searchInput}
-                                placeholder="Cari nama, bank atau nomor rekening"
+                                placeholder={t('search_account_placeholder')}
                                 placeholderTextColor="#BFC6D1"
                                 value={search}
                                 onChangeText={handleSearchChange}
                             />
                         </View>
                         <TouchableOpacity onPress={Keyboard.dismiss}>
-                            <Text style={styles.cancelText}>Batal</Text>
+                            <Text style={styles.cancelText}>{t('cancel')}</Text>
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.sectionTitle}>Rekening Tersimpan</Text>
+                    <Text style={styles.sectionTitle}>{t('saved_accounts')}</Text>
                     {loading ? (
-                        <Text style={{ margin: 16 }}>Memuat...</Text>
+                        <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', marginTop: 48 }}>
+                            <Text style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>{t('loading')}</Text>
+                        </View>
                     ) : error ? (
                         <Text style={{ color: 'red', margin: 16 }}>{error}</Text>
+                    ) : filteredAccounts.length === 0 ? (
+                        <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', marginTop: 48 }}>
+                            <Text style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>{t('no_saved_accounts')}</Text>
+                        </View>
                     ) : (
                         <FlatList
                             data={filteredAccounts}
@@ -215,6 +227,15 @@ export default function SavedAccountsScreen() {
                                 onTransfer={() => setShowVerifyPin(true)}
                             />)
                     }
+                    {/* Error Modal */}
+                    <Modal visible={!!(showErrorModal && transferResult && !transferResult.success)} transparent animationType="fade">
+                        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
+                                <Text style={{ fontSize: 16, color: '#C81C4D', fontWeight: 'bold', marginBottom: 12 }}>{transferResult?.message}</Text>
+                                <Button title={t('close')} onPress={() => setShowErrorModal(false)} />
+                            </View>
+                        </View>
+                    </Modal>
                     {showSheet && (
                         <BottomSheet
                             ref={bottomSheetRef}

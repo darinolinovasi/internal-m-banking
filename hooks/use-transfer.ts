@@ -28,7 +28,7 @@ export function useTransfer() {
             const result = await rawTransferToAccount(params);
             return result;
         } catch (err: any) {
-            setError(err?.response?.data?.message || err?.message || 'Transfer gagal');
+            setError(err?.response?.data?.error || err?.message || 'Transfer gagal');
             throw err;
         } finally {
             setLoading(false);

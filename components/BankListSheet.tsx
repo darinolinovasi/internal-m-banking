@@ -1,9 +1,9 @@
-
 import { Logos } from '@/assets/logos';
 import { useBankCodes } from '@/hooks/use-bank-codes';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import pkg from 'lodash';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 const { debounce } = pkg;
@@ -12,9 +12,8 @@ interface BankListSheetProps {
     onBankPress: (bank: any) => void;
 }
 
-
-
 export default function BankListSheet({ onBankPress }: BankListSheetProps) {
+    const { t } = useTranslation();
     const { banks, loading, error } = useBankCodes();
     const [search, setSearch] = React.useState('');
     const [debouncedSearch, setDebouncedSearch] = React.useState('');
@@ -27,7 +26,7 @@ export default function BankListSheet({ onBankPress }: BankListSheetProps) {
     return (
         <View style={{ flex: 1 }}>
             <View style={styles.sheetHeader}>
-                <Text style={styles.sheetTitle}>Pilih Bank Tujuan</Text>
+                <Text style={styles.sheetTitle}>{t('select_destination_bank')}</Text>
             </View>
             <View style={styles.sheetSearchBar}>
                 <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -35,13 +34,13 @@ export default function BankListSheet({ onBankPress }: BankListSheetProps) {
                 </Svg>
                 <TextInput
                     style={styles.sheetSearchInput}
-                    placeholder="Cari bank"
+                    placeholder={t('search_bank_placeholder')}
                     placeholderTextColor="#BFC6D1"
                     value={search}
                     onChangeText={handleSearchChange}
                 />
             </View>
-            <Text style={styles.sheetSectionTitle}>Daftar Bank</Text>
+            <Text style={styles.sheetSectionTitle}>{t('bank_list')}</Text>
             {loading ? (
                 <ActivityIndicator style={{ marginTop: 32 }} size="large" color="#178AFF" />
             ) : error ? (

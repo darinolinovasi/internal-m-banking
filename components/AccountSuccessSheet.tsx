@@ -1,5 +1,6 @@
 import { useSaveAccountNumber } from '@/hooks/use-save-account-number';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import VerifyPinModal from './VerifyPinModal';
@@ -20,6 +21,7 @@ interface AccountSuccessSheetProps {
 }
 
 export default function AccountSuccessSheet({ bank, accountData, note, onBack, onAccountSaved }: AccountSuccessSheetProps) {
+    const { t } = useTranslation();
     const [editableNote, setEditableNote] = useState(note);
     const [showPinModal, setShowPinModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -58,7 +60,7 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
                     </Svg>
 
                 </TouchableOpacity>
-                <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Rekening Tersimpan</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{t('saved_account_title')}</Text>
             </View>
             <View style={{ backgroundColor: '#fff', borderRadius: 18, borderWidth: 1, borderColor: '#E0E0E0', overflow: 'hidden' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
@@ -67,17 +69,17 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
                 </View>
                 <View style={{ borderTopWidth: 1, borderColor: '#E0E0E0' }} />
                 <View style={{ padding: 16 }}>
-                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 4 }}>Nama</Text>
+                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 4 }}>{t('name')}</Text>
                     <Text style={styles.accountName}>{accountData.beneficiaryAccountName}</Text>
-                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 4, marginTop: 16 }}>Nomor Rekening / Virtual Account</Text>
+                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 4, marginTop: 16 }}>{t('account_number_or_va')}</Text>
                     <Text style={styles.accountNumberInput}>{accountData.beneficiaryAccountNo}</Text>
-                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 4, marginTop: 16 }}>Catatan</Text>
+                    <Text style={{ color: '#888', fontSize: 13, marginBottom: 4, marginTop: 16 }}>{t('note')}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 8, justifyContent: 'space-between' }}>
                         <TextInput
                             style={styles.noteInput}
                             value={editableNote}
                             onChangeText={setEditableNote}
-                            placeholder="Catatan rekening"
+                            placeholder={t('note_placeholder')}
                             placeholderTextColor="#BFC6D1"
                         />
                         <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -88,18 +90,18 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
                 </View>
             </View>
             <View style={{ position: "relative", alignItems: "center", display: "flex", justifyContent: 'center', flexDirection: "row", gap: 4, alignContent: 'center', paddingHorizontal: 16, paddingTop: 32, paddingBottom: 16, backgroundColor: '#C7EECF', borderBottomStartRadius: 18, borderBottomEndRadius: 18, top: -18, zIndex: -1 }}>
-                <Text style={{ color: "#1B5E20", fontSize: 14, textAlign: 'center' }}>Berhasil</Text>
+                <Text style={{ color: "#1B5E20", fontSize: 14, textAlign: 'center' }}>{t('success')}</Text>
             </View>
             <TouchableOpacity
                 style={[styles.successBox, isAlreadySaved && { backgroundColor: '#BFC6D1' }]}
                 onPress={() => setShowPinModal(true)}
                 disabled={isAlreadySaved}
             >
-                <Text style={styles.successText}>{isAlreadySaved ? 'Nomor Sudah Disimpan' : 'Simpan Nomor'}</Text>
+                <Text style={styles.successText}>{isAlreadySaved ? t('already_saved') : t('save_number')}</Text>
             </TouchableOpacity>
             {isAlreadySaved && (
                 <View style={{ marginTop: 12, alignItems: 'center' }}>
-                    <Text style={{ color: '#178AFF', fontWeight: 'bold' }}>Nomor rekening ini sudah ada di daftar tersimpan.</Text>
+                    <Text style={{ color: '#178AFF', fontWeight: 'bold' }}>{t('already_saved_info')}</Text>
                 </View>
             )}
             <VerifyPinModal
@@ -110,8 +112,8 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
             <Modal visible={showSuccessModal} transparent animationType="fade">
                 <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
-                        <Text style={{ fontSize: 18, color: '#178AFF', fontWeight: 'bold', marginBottom: 8 }}>Berhasil</Text>
-                        <Text style={{ color: '#222', fontSize: 16 }}>Nomor rekening berhasil disimpan!</Text>
+                        <Text style={{ fontSize: 18, color: '#178AFF', fontWeight: 'bold', marginBottom: 8 }}>{t('success')}</Text>
+                        <Text style={{ color: '#222', fontSize: 16 }}>{t('account_saved_success')}</Text>
                     </View>
                 </View>
             </Modal>

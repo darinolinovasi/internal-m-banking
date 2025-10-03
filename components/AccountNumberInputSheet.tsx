@@ -1,6 +1,8 @@
+import { Logos } from '@/assets/logos';
 import { useInquiry } from '@/hooks/use-inquiry';
 import * as Clipboard from 'expo-clipboard';
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Path, Polyline, Rect } from 'react-native-svg';
 import AccountSuccessSheet from './AccountSuccessSheet';
@@ -17,6 +19,7 @@ interface AccountNumberInputSheetProps {
 }
 
 export default function AccountNumberInputSheet({ bank, accountNumber, setAccountNumber, onBack, onKeypad, onDelete, onAccountSaved }: AccountNumberInputSheetProps) {
+    const { t } = useTranslation();
     const [error, setError] = useState<string | null>("");
     const [showSuccess, setShowSuccess] = useState(false);
     const [inputFocused, setInputFocused] = useState(false);
@@ -24,7 +27,6 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
     const { inquiry, loading, error: inquiryError } = useInquiry();
     const [successData, setSuccessData] = useState<any>(null);
 
-    // Remove doInquiry, use this instead:
     const handleInquiry = async () => {
         try {
             const response = await inquiry(bank, accountNumber);
@@ -32,8 +34,7 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
                 setSuccessData(response.data.data);
                 setShowSuccess(true);
             } else {
-                // fallback error
-                setError('Nomor rekening tidak ditemukan.');
+                setError(t('account_not_found'));
             }
         } catch (err) {
             // error handled by hook
@@ -73,7 +74,7 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
             <AccountSuccessSheet
                 bank={bank}
                 accountData={successData}
-                note={'Rekening payroll'}
+                note={t('payroll_account')}
                 onBack={() => setShowSuccess(false)}
                 onAccountSaved={onAccountSaved}
             />
@@ -91,17 +92,19 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
                         </Svg>
 
                     </TouchableOpacity>
-                    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>Masukkan Rekening Tujuan</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{t('enter_destination_account')}</Text>
                 </View>
                 <View style={{ marginBottom: 24 }}>
                     <View style={{ backgroundColor: '#fff', borderRadius: 18, borderWidth: 1, borderColor: '#E0E0E0', overflow: 'hidden' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
-                            <View style={{ width: 48, height: 48, borderRadius: 10, backgroundColor: '#D9D9D9', marginRight: 16 }} />
+                            <View style={{ width: 48, height: 48, marginRight: 16 }}>
+                                {Logos[bank.bank_code] || <View style={{ width: 48, height: 48, backgroundColor: '#E2E8F0', borderRadius: 10 }} />}
+                            </View>
                             <Text style={{ fontWeight: '500', fontSize: 16 }}>{bank.bank_name}</Text>
                         </View>
                         <View style={{ borderTopWidth: 1, borderColor: '#E0E0E0' }} />
                         <View style={{ padding: 16 }}>
-                            <Text style={{ color: '#888', fontSize: 13, marginBottom: 4 }}>Nomor Rekening / Virtual Account</Text>
+                            <Text style={{ color: '#888', fontSize: 13, marginBottom: 4 }}>{t('account_number_or_va')}</Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <TextInput
                                     ref={inputRef}
@@ -139,7 +142,7 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
                     )}
                 </View>
                 <TouchableOpacity style={styles.submitButton} onPress={handleInquiry}>
-                    <Text style={styles.submitButtonText}>Konfirmasi</Text>
+                    <Text style={styles.submitButtonText}>{t('confirm')}</Text>
                 </TouchableOpacity>
             </View>
             {/* Show keypad only when input is not focused */}

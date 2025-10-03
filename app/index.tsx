@@ -2,7 +2,7 @@ import BottomNavbar from '@/components/BottomNavbar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
@@ -117,7 +117,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Menunggu Pembayaran */}
-        <View style={styles.sectionHeader}>
+        {/* <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Menunggu Pembayaran</Text>
           <TouchableOpacity>
             <Text style={styles.sectionLink}>Lihat Lainnya</Text>
@@ -154,7 +154,7 @@ export default function HomeScreen() {
               <Text style={{ ...styles.paymentAmountValue, ...styles.paymentAmount }}>1,850,000.00</Text>
             </View>
           </View>
-        </ScrollView>
+        </ScrollView> */}
       </View>
       {/* Bottom Navbar */}
       <BottomNavbar />

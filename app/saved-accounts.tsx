@@ -125,6 +125,7 @@ export default function SavedAccountsScreen() {
                         amount: cleanAmount,
                         note: tempNote,
                         result: 'success',
+                        transferResponse: JSON.stringify(response.data.data),
                     }
                 });
             }, 1000);

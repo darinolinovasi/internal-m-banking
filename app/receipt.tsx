@@ -24,8 +24,9 @@ export default function ReceiptScreen() {
         transferResponse = null;
     }
     // Prefer transfer response data if available
-    referenceNo = transferResponse?.referenceNo || params.referenceNo || account.referenceNo || '-';
-    trxId = transferResponse?.trxId || params.trxId || account.trxId || '-';
+    console.log('Transfer Response:', data);
+    referenceNo = data?.referenceNo || params.referenceNo || account.referenceNo || '-';
+    trxId = data?.partnerReferenceNo || params.partnerReferenceNo || account.partnerReferenceNo || '-';
     const provider = transferResponse?.provider || account.provider || account.bank?.bank_name || '-';
     const vaNumber = transferResponse?.account_number || account.account_number || '-';
     const name = transferResponse?.account_holder_name || account.account_holder_name || '-';
@@ -46,6 +47,8 @@ export default function ReceiptScreen() {
                             <Text style={styles.sectionLabel}>Penyedia Jasa</Text>
                             <Text style={styles.provider}>{provider}</Text>
                             <Text style={styles.providerSub}>{vaNumber} - {name}</Text>
+                            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+
                         </View>
                         {/* Payment Detail */}
                         <View style={styles.section}>
@@ -54,14 +57,17 @@ export default function ReceiptScreen() {
                                 <Text style={styles.detailLabel}>Nominal Transaksi</Text>
                                 <Text style={styles.detailValue}>Rp {Number(amount).toLocaleString('id-ID')}</Text>
                             </View>
+                            <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
                             <View style={styles.rowBetween}>
                                 <Text style={styles.detailLabel}>Biaya Transaksi</Text>
                                 <Text style={styles.detailValue}>{fee}</Text>
                             </View>
+                            <View style={{ borderBottomWidth: 1, borderBottomColor: "#000" }} />
                             <View style={styles.rowBetween}>
-                                <Text style={[styles.detailLabel, { fontWeight: 'bold' }]}>Total Transaksi</Text>
-                                <Text style={[styles.detailValue, { fontWeight: 'bold' }]}>Rp {Number(total).toLocaleString('id-ID')}</Text>
+                                <Text style={[styles.detailLabel, { fontWeight: 'bold', color: "#000" }]}>Total Transaksi</Text>
+                                <Text style={[styles.detailValue, { fontWeight: 'bold', color: "#000" }]}>Rp {Number(total).toLocaleString('id-ID')}</Text>
                             </View>
+                            <View style={{ borderBottomWidth: 1, borderBottomColor: "#000" }} />
                         </View>
                         {/* Source Section */}
                         <View style={styles.section}>
@@ -73,21 +79,29 @@ export default function ReceiptScreen() {
                         {/* Transaction Detail */}
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>Detail Transaksi</Text>
-                            <View style={styles.rowBetween}>
-                                <Text style={styles.detailLabel}>NOMOR VA</Text>
-                                <Text style={styles.detailValue}>{vaNumber}</Text>
-                            </View>
-                            <View style={styles.rowBetween}>
-                                <Text style={styles.detailLabel}>NAMA</Text>
-                                <Text style={styles.detailValue}>{name}</Text>
-                            </View>
-                            <View style={styles.rowBetween}>
-                                <Text style={styles.detailLabel}>REFERENCE NO</Text>
-                                <Text style={styles.detailValue}>{referenceNo}</Text>
-                            </View>
-                            <View style={styles.rowBetween}>
-                                <Text style={styles.detailLabel}>TRX ID</Text>
-                                <Text style={styles.detailValue}>{trxId}</Text>
+                            <View style={{ flex: 1, flexDirection: 'column', gap: 12 }}>
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>NOMOR VA</Text>
+                                    <Text style={styles.detailValue}>{vaNumber}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>NAMA</Text>
+                                    <Text style={styles.detailValue}>{name}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>REFERENCE NO</Text>
+                                    <Text style={styles.detailValue}>{referenceNo}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>TRX ID</Text>
+                                    <Text style={styles.detailValue}>{trxId}</Text>
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -126,6 +140,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         padding: 24,
         paddingHorizontal: 36,
+        flexDirection: 'column',
+        gap: 12,
     },
     sectionLabel: {
         color: '#BFC6D1',

@@ -12,5 +12,12 @@
     "daftar_notifikasi": "通知リスト",
     "daftar_reimburse": "リインバースリスト",
     "daftar_rekening": "口座リスト",
-    "rekening": "口座"
+    "rekening": "口座",
+    "navbar": {
+        "home": "ホーム",
+        "transactions": "取引",
+        "transfer": "振込",
+        "schedule": "スケジュール",
+        "account": "マイアカウント"
+    }
 }

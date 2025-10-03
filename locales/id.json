@@ -12,5 +12,12 @@
     "daftar_notifikasi": "Daftar Notifikasi",
     "daftar_reimburse": "Daftar Reimburse",
     "daftar_rekening": "Daftar Rekening",
-    "rekening": "Rekening"
+    "rekening": "Rekening",
+    "navbar": {
+        "home": "Beranda",
+        "transactions": "Transaksi",
+        "transfer": "Transfer",
+        "schedule": "Jadwal",
+        "account": "Akun Saya"
+    }
 }

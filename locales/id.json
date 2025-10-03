@@ -63,6 +63,10 @@
     "transfer_amount": "Nominal Transfer",
     "amount_zero_warning": "Nominal transfer tidak boleh nol.",
     "transfer": "Transfer",
+    "transaction_history": "Riwayat Transaksi",
+    "previous_transactions": "Transaksi Sebelumnya",
+    "sample_date": "Senin, 1 Jan 2000",
+    "bank_transfer": "Transfer Bank",
     "navbar": {
         "home": "Beranda",
         "transactions": "Transaksi",

@@ -213,15 +213,22 @@ export default function HomeScreen() {
               <View>
                 <Text style={styles.balanceLabel}>{t('saldo_aktif')}</Text>
                 <Text style={styles.balanceValue}>
-                  {showBalance ? 'IDR 10,000,000,000.00' : '***************'}
+                  {showBalance ? 'IDR 1,000,000,000.00' : '***********************'}
                 </Text>
               </View>
               {/* Eye Button */}
               <TouchableOpacity onPress={() => setShowBalance((prev) => !prev)}>
-                <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <Path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <Path d="M1 12C8.33333 22.6667 15.6667 22.6667 23 12C15.6667 1.33333 8.33333 1.33333 1 12Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
+                {
+                  showBalance ? <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <Path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <Path d="M1 12C8.33333 22.6667 15.6667 22.6667 23 12C15.6667 1.33333 8.33333 1.33333 1 12Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+                    :
+                    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" >
+                      <Path d="M2 5.27L3.28 4L20 20.72L18.73 22L15.65 18.92C14.5 19.3 13.28 19.5 12 19.5C7 19.5 2.73 16.39 1 12C1.69 10.24 2.79 8.69 4.19 7.46L2 5.27ZM12 9C12.7956 9 13.5587 9.31607 14.1213 9.87868C14.6839 10.4413 15 11.2044 15 12C15.0005 12.3406 14.943 12.6787 14.83 13L11 9.17C11.3213 9.05698 11.6594 8.99949 12 9ZM12 4.5C17 4.5 21.27 7.61 23 12C22.1834 14.0729 20.7966 15.8723 19 17.19L17.58 15.76C18.9629 14.8034 20.0783 13.5091 20.82 12C20.0117 10.3499 18.7565 8.95963 17.1974 7.98735C15.6382 7.01508 13.8375 6.49976 12 6.5C10.91 6.5 9.84 6.68 8.84 7L7.3 5.47C8.74 4.85 10.33 4.5 12 4.5ZM3.18 12C3.98835 13.6501 5.24345 15.0404 6.80264 16.0126C8.36182 16.9849 10.1625 17.5002 12 17.5C12.69 17.5 13.37 17.43 14 17.29L11.72 15C11.0242 14.9254 10.3748 14.6149 9.87997 14.12C9.38512 13.6252 9.07458 12.9758 9 12.28L5.6 8.87C4.61 9.72 3.78 10.78 3.18 12Z" fill="#0062CB" />
+                    </Svg>
+
+                }
               </TouchableOpacity>
             </View>
             <View style={{ borderBottomWidth: 0.5, borderColor: "#000" }} />
@@ -256,18 +263,16 @@ export default function HomeScreen() {
             </Svg>
             <Text style={styles.actionText}>{t('daftar_reimburse')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => {
+            // Open rekening page
+            router.navigate('/saved-accounts');
+          }}>
             <Svg width="52" height="52" viewBox="0 0 52 52" fill="none">
               <Path d="M41.6 19.5H6.06668C5.60697 19.5 5.16609 19.6826 4.84103 20.0077C4.51596 20.3327 4.33334 20.7736 4.33334 21.2333V39.4333C4.33334 39.893 4.51596 40.3339 4.84103 40.659C5.16609 40.9841 5.60697 41.1667 6.06668 41.1667H41.6C42.0597 41.1667 42.5006 40.9841 42.8257 40.659C43.1507 40.3339 43.3333 39.893 43.3333 39.4333V21.2333C43.3333 20.7736 43.1507 20.3327 42.8257 20.0077C42.5006 19.6826 42.0597 19.5 41.6 19.5Z" fill="#0062CB" fillOpacity="0.16" />
               <Path d="M10.8333 19.5V14.7333C10.8333 13.78 11.6133 13 12.5667 13H48.1C49.0533 13 49.8333 13.78 49.8333 14.7333V32.9333C49.8333 33.8867 49.0533 34.6667 48.1 34.6667H43.3333M6.06668 19.5H41.6C42.0597 19.5 42.5006 19.6826 42.8257 20.0077C43.1507 20.3327 43.3333 20.7736 43.3333 21.2333V39.4333C43.3333 39.893 43.1507 40.3339 42.8257 40.659C42.5006 40.9841 42.0597 41.1667 41.6 41.1667H6.06668C5.60697 41.1667 5.16609 40.9841 4.84103 40.659C4.51596 40.3339 4.33334 39.893 4.33334 39.4333V21.2333C4.33334 20.7736 4.51596 20.3327 4.84103 20.0077C5.16609 19.6826 5.60697 19.5 6.06668 19.5ZM26 30.3333C26 30.908 25.7717 31.4591 25.3654 31.8654C24.9591 32.2717 24.408 32.5 23.8333 32.5C23.2587 32.5 22.7076 32.2717 22.3013 31.8654C21.895 31.4591 21.6667 30.908 21.6667 30.3333C21.6667 29.7587 21.895 29.2076 22.3013 28.8013C22.7076 28.3949 23.2587 28.1667 23.8333 28.1667C24.408 28.1667 24.9591 28.3949 25.3654 28.8013C25.7717 29.2076 26 29.7587 26 30.3333Z" stroke="#0062CB" strokeWidth="3.25" strokeMiterlimit="10" strokeLinejoin="round" />
             </Svg>
 
-            <TouchableOpacity onPress={() => {
-              // Open rekening page
-              router.navigate('/saved-accounts');
-            }}>
-              <Text style={styles.actionText}>{t('daftar_rekening')}</Text>
-            </TouchableOpacity>
+            <Text style={styles.actionText}>{t('daftar_rekening')}</Text>
           </TouchableOpacity>
         </View>
       </View>

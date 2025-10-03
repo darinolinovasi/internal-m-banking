@@ -63,6 +63,10 @@
     "transfer_amount": "振込金額",
     "amount_zero_warning": "振込金額は0にできません。",
     "transfer": "振込",
+    "transaction_history": "取引履歴",
+    "previous_transactions": "過去の取引",
+    "sample_date": "月曜日, 2000年1月1日",
+    "bank_transfer": "銀行振込",
     "navbar": {
         "home": "ホーム",
         "transactions": "取引",

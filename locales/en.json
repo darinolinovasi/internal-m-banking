@@ -63,6 +63,10 @@
     "transfer_amount": "Transfer Amount",
     "transfer": "Transfer",
     "amount_zero_warning": "Transfer amount cannot be zero.",
+    "transaction_history": "Transaction History",
+    "previous_transactions": "Previous Transactions",
+    "sample_date": "Monday, Jan 1 2000",
+    "bank_transfer": "Bank Transfer",
     "navbar": {
         "home": "Home",
         "transactions": "Transactions",

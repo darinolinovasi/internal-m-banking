@@ -74,7 +74,7 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
             <AccountSuccessSheet
                 bank={bank}
                 accountData={successData}
-                note={t('payroll_account')}
+                note={"Rekening payroll"}
                 onBack={() => setShowSuccess(false)}
                 onAccountSaved={onAccountSaved}
             />

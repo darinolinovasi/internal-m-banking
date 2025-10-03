@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PinInput from '../components/PinInput';
 import PinKeypad from '../components/PinKeypad';
@@ -17,6 +18,7 @@ export default function VerifyPinModal({
     callback,
     onClose
 }: VerifyPinModalProps) {
+    const { t } = useTranslation();
     const [pin, setPin] = useState('');
     const [sessionExpired, setSessionExpired] = useState(false);
     const [error, setError] = useState('');
@@ -53,7 +55,7 @@ export default function VerifyPinModal({
                 }
 
                 if (err?.response?.status === 401 && err.response?.data?.error === 'Invalid PIN') {
-                    setError('PIN yang Anda masukkan salah. Silakan coba lagi.');
+                    setError(t('pin_wrong_message'));
                     setShowErrorModal(true);
                     setPin('');
                     return;
@@ -79,8 +81,8 @@ export default function VerifyPinModal({
                     <View></View>
                     <View style={{ alignItems: 'center', width: '100%' }}>
 
-                        <Text style={styles.title}>Verifikasi PIN</Text>
-                        <Text style={styles.subtitle}>Masukkan 6 digit PIN Anda untuk melanjutkan</Text>
+                        <Text style={styles.title}>{t('verify_pin_title')}</Text>
+                        <Text style={styles.subtitle}>{t('verify_pin_subtitle')}</Text>
                         <PinInput value={pin} />
                     </View>
                     <PinKeypad onPress={handleKeypad} onDelete={handleDelete} />
@@ -92,7 +94,7 @@ export default function VerifyPinModal({
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
                                 <ActivityIndicator size="large" color="#178AFF" />
-                                <Text style={{ marginTop: 16, color: '#222', fontSize: 16 }}>Memverifikasi PIN...</Text>
+                                <Text style={{ marginTop: 16, color: '#222', fontSize: 16 }}>{t('verifying_pin')}</Text>
                             </View>
                         </View>
                     </Modal>
@@ -103,8 +105,8 @@ export default function VerifyPinModal({
                     >
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
-                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>Sesi Berakhir</Text>
-                                <Text style={{ color: '#222', fontSize: 16, textAlign: 'center' }}>Sesi Anda telah berakhir. Silakan login kembali.</Text>
+                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>{t('session_expired_title')}</Text>
+                                <Text style={{ color: '#222', fontSize: 16, textAlign: 'center' }}>{t('session_expired_message')}</Text>
                             </View>
                         </View>
                     </Modal>
@@ -116,10 +118,10 @@ export default function VerifyPinModal({
                     >
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
-                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>PIN Salah</Text>
-                                <Text style={{ color: '#222', fontSize: 16 }}>{error}</Text>
+                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>{t('pin_wrong_title')}</Text>
+                                <Text style={{ color: '#222', fontSize: 16 }}>{t('pin_wrong_message')}</Text>
                                 <TouchableOpacity style={{ marginTop: 24 }} onPress={() => setShowErrorModal(false)}>
-                                    <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>Tutup</Text>
+                                    <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>{t('close')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

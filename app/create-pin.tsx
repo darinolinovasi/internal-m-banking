@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PinInput from '../components/PinInput';
@@ -8,6 +9,7 @@ import PinKeypad from '../components/PinKeypad';
 export default function CreatePinScreen() {
     const [pin, setPin] = useState('');
     const router = useRouter();
+    const { t } = useTranslation();
 
     const handleKeypad = (val: string) => {
         if (pin.length < 6) setPin(pin + val);
@@ -27,7 +29,7 @@ export default function CreatePinScreen() {
             <View style={styles.container}>
                 <View></View>
                 <View style={{ alignItems: 'center', width: '100%' }}>
-                    <Text style={styles.title}>Buat PIN Baru</Text>
+                    <Text style={styles.title}>{t('create_pin_title')}</Text>
                     <PinInput value={pin} />
                 </View>
                 <PinKeypad onPress={handleKeypad} onDelete={handleDelete} />

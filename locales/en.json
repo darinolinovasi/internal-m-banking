@@ -17,6 +17,11 @@
     "account_security": "Account & Security",
     "change_pin": "Change PIN",
     "change_password": "Change Password",
+    "update_password_title": "Update Password",
+    "old_password": "Old Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm Password",
+    "update": "Update",
     "navbar": {
         "home": "Home",
         "transactions": "Transactions",

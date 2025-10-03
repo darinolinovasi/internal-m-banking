@@ -1,5 +1,6 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface ChangePasswordSheetProps {
@@ -11,6 +12,7 @@ interface ChangePasswordSheetProps {
 const snapPoints = ['100%', '50%'];
 
 const ChangePasswordSheet: React.FC<ChangePasswordSheetProps> = ({ visible, onClose, onSubmit }) => {
+    const { t } = useTranslation();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -50,10 +52,10 @@ const ChangePasswordSheet: React.FC<ChangePasswordSheetProps> = ({ visible, onCl
                 style={{ flex: 1 }}
             >
                 <View style={styles.sheet}>
-                    <Text style={styles.title}>Perbarui Katasandi</Text>
+                    <Text style={styles.title}>{t('update_password_title')}</Text>
                     <View style={styles.divider} />
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Katasandi Lama</Text>
+                        <Text style={styles.label}>{t('old_password')}</Text>
                         <TextInput
                             style={styles.input}
                             secureTextEntry
@@ -62,7 +64,7 @@ const ChangePasswordSheet: React.FC<ChangePasswordSheetProps> = ({ visible, onCl
                             placeholder=""
                             placeholderTextColor="#888"
                         />
-                        <Text style={styles.label}>Katasandi Baru</Text>
+                        <Text style={styles.label}>{t('new_password')}</Text>
                         <TextInput
                             style={styles.input}
                             secureTextEntry
@@ -71,7 +73,7 @@ const ChangePasswordSheet: React.FC<ChangePasswordSheetProps> = ({ visible, onCl
                             placeholder=""
                             placeholderTextColor="#888"
                         />
-                        <Text style={styles.label}>Konfirmasi Katasandi</Text>
+                        <Text style={styles.label}>{t('confirm_password')}</Text>
                         <TextInput
                             style={styles.input}
                             secureTextEntry
@@ -86,7 +88,7 @@ const ChangePasswordSheet: React.FC<ChangePasswordSheetProps> = ({ visible, onCl
                         disabled={isButtonDisabled}
                         onPress={() => onSubmit?.(oldPassword, newPassword, confirmPassword)}
                     >
-                        <Text style={styles.buttonText}>Perbarui</Text>
+                        <Text style={styles.buttonText}>{t('update')}</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

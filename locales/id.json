@@ -17,6 +17,11 @@
     "account_security": "Akun dan Keamanan",
     "change_pin": "Ubah PIN",
     "change_password": "Ubah Kata Sandi",
+    "update_password_title": "Perbarui Katasandi",
+    "old_password": "Katasandi Lama",
+    "new_password": "Katasandi Baru",
+    "confirm_password": "Konfirmasi Katasandi",
+    "update": "Perbarui",
     "navbar": {
         "home": "Beranda",
         "transactions": "Transaksi",

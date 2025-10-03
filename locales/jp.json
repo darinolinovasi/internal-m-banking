@@ -17,6 +17,11 @@
     "account_security": "アカウントとセキュリティ",
     "change_pin": "PINを変更",
     "change_password": "パスワードを変更",
+    "update_password_title": "パスワードを更新",
+    "old_password": "現在のパスワード",
+    "new_password": "新しいパスワード",
+    "confirm_password": "パスワードの確認",
+    "update": "更新",
     "navbar": {
         "home": "ホーム",
         "transactions": "取引",

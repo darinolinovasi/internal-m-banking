@@ -12,6 +12,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [showBalance, setShowBalance] = useState(true); // Add state for balance visibility
 
   const handleChangeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -94,12 +95,17 @@ export default function HomeScreen() {
             <View style={styles.balanceRow}>
               <View>
                 <Text style={styles.balanceLabel}>{t('saldo_aktif')}</Text>
-                <Text style={styles.balanceValue}>IDR 10,000,000,000.00</Text>
+                <Text style={styles.balanceValue}>
+                  {showBalance ? 'IDR 10,000,000,000.00' : '***************'}
+                </Text>
               </View>
-              <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <Path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <Path d="M1 12C8.33333 22.6667 15.6667 22.6667 23 12C15.6667 1.33333 8.33333 1.33333 1 12Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
+              {/* Eye Button */}
+              <TouchableOpacity onPress={() => setShowBalance((prev) => !prev)}>
+                <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <Path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <Path d="M1 12C8.33333 22.6667 15.6667 22.6667 23 12C15.6667 1.33333 8.33333 1.33333 1 12Z" stroke="#0062CB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </Svg>
+              </TouchableOpacity>
             </View>
             <View style={{ borderBottomWidth: 0.5, borderColor: "#000" }} />
             <TouchableOpacity style={styles.mutasiBtn}>

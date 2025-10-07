@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://166669759eac.ngrok-free.app/api/v1/', // Change to your API base URL
+    baseURL: 'https://715aebf43aec.ngrok-free.app/api/v1/', // Change to your API base URL
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -24,6 +24,13 @@ api.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
+        console.log('Token refresh failed. Logged out.', await AsyncStorage.getItem('refresh_token'));
+        // Prevent infinite loop: do not retry if the request is to /auth/refresh
+        if (originalRequest.url && originalRequest.url.includes('/auth/refresh')) {
+            await AsyncStorage.removeItem('jwt');
+            await AsyncStorage.removeItem('refresh_token');
+            return Promise.reject(error);
+        }
         // Check if error is due to expired token and retry hasn't been attempted
         if (
             error.response &&

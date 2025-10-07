@@ -6,6 +6,7 @@ export function useSavedAccounts() {
     const [accounts, setAccounts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [statusCode, setStatusCode] = useState<number | null>(null);
 
     const fetchAccounts = async () => {
         setLoading(true);
@@ -18,8 +19,10 @@ export function useSavedAccounts() {
                 },
             });
             setAccounts(response.data.data || []);
+            setStatusCode(response.status);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Gagal memuat rekening tersimpan.');
+            setStatusCode(err.response?.status || null);
         } finally {
             setLoading(false);
         }
@@ -29,5 +32,5 @@ export function useSavedAccounts() {
         fetchAccounts();
     }, []);
 
-    return { accounts, loading, error, refetch: fetchAccounts };
+    return { accounts, loading, error, refetch: fetchAccounts, statusCode };
 }

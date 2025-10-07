@@ -6,7 +6,7 @@ import { useTransfer } from '@/hooks/use-transfer';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import pkg from 'lodash';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, FlatList, Keyboard, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -36,7 +36,7 @@ export default function SavedAccountsScreen() {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const bottomSheetRef = useRef<BottomSheet>(null);
     const snapPoints = ['100%'];
-    const { accounts, loading, error, refetch } = useSavedAccounts();
+    const { accounts, loading, error, refetch, statusCode } = useSavedAccounts();
     const { transferToAccount, loading: transferLoading, error: transferError } = useTransfer();
     const router = useRouter();
 
@@ -137,6 +137,15 @@ export default function SavedAccountsScreen() {
         }
     };
 
+    useEffect(() => {
+        if (statusCode === 401) {
+            // If unauthorized, clear JWT and redirect to sign-in in 5 seconds
+            setTimeout(() => {
+                router.replace('/signin');
+            }, 1000);
+        }
+    }, [statusCode]);
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
             <VerifyPinModal visible={showVerifyPin} callback={handlePinVerified} onClose={() => setShowVerifyPin(false)} />
@@ -151,6 +160,18 @@ export default function SavedAccountsScreen() {
                     </View>
                 </View>
             )}
+            <Modal
+                visible={statusCode === 401}
+                transparent
+                animationType="fade"
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>{t('session_expired_title')}</Text>
+                        <Text style={{ color: '#222', fontSize: 16, textAlign: 'center' }}>{t('session_expired_message')}</Text>
+                    </View>
+                </View>
+            </Modal>
             <GestureHandlerRootView style={styles.container}>
                 <View style={{ flex: 1, backgroundColor: '#EFEFEF' }}>
                     <View style={styles.searchBarWrapper}>
@@ -450,5 +471,20 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 200,
+        maxWidth: '80%'
     },
 });

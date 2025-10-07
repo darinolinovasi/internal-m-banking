@@ -1,4 +1,5 @@
 import BottomNavbar from '@/components/BottomNavbar';
+import { useLogout } from '@/hooks/use-logout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -11,9 +12,15 @@ import i18n from '../utils/i18n';
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { logout, loading } = useLogout();
   const [modalVisible, setModalVisible] = useState(false);
   const [showBalance, setShowBalance] = useState(true); // Add state for balance visibility
   const [fadeAnim] = useState(new Animated.Value(0));
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/signin');
+  };
 
   React.useEffect(() => {
     if (modalVisible) {
@@ -38,6 +45,14 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
+      {/* Logout Loading Modal */}
+      <Modal visible={loading} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
+            <Text style={{ fontSize: 18, color: '#178AFF', fontWeight: 'bold', marginBottom: 8 }}>Logging out...</Text>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -49,7 +64,8 @@ export default function HomeScreen() {
                 <Path d="M20.5833 3.24582C20.5833 3.24582 25.3333 9.49999 25.3333 19C25.3333 28.5 20.5833 34.7542 20.5833 34.7542M17.4167 34.7542C17.4167 34.7542 12.6667 28.5 12.6667 19C12.6667 9.49999 17.4167 3.24582 17.4167 3.24582M4.16415 24.5417H33.8358M4.16415 13.4583H33.8358" stroke="#333333" strokeWidth="2.375" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </TouchableOpacity>
-            <TouchableOpacity>
+            {/* Logout button */}
+            <TouchableOpacity onPress={handleLogout}>
               <Svg width="38" height="38" viewBox="0 0 38 38" fill="none" >
                 <Path d="M17.4167 6.33332H20.6103C23.6218 6.33332 25.1275 6.33332 26.0617 7.26115C26.5842 7.77732 26.8153 8.47082 26.9167 9.49999M17.4167 31.6667H20.6103C23.6218 31.6667 25.1275 31.6667 26.0617 30.7388C26.5842 30.2227 26.8153 29.5292 26.9167 28.5M33.25 19H22.1667M30.875 15.0417C30.875 15.0417 34.8333 17.955 34.8333 19C34.8333 20.045 30.875 22.9583 30.875 22.9583M6.95559 6.33332C6.33334 7.31024 6.33334 8.57057 6.33334 11.0897V26.9135C6.33334 29.4326 6.33334 30.6929 6.95559 31.6667C7.06643 31.8408 7.19045 32.0055 7.32768 32.1607C8.09243 33.0252 9.30526 33.3719 11.7293 34.0638C14.1566 34.7573 15.371 35.1041 16.2513 34.5847C16.4038 34.4942 16.5456 34.387 16.6741 34.2649C17.4167 33.5603 17.4167 32.3 17.4167 29.7714V8.22857C17.4167 5.70157 17.4167 4.43965 16.6741 3.73665C16.5456 3.6146 16.4038 3.50732 16.2513 3.41682C15.3726 2.89749 14.1566 3.24265 11.7278 3.93774C9.30526 4.62965 8.09243 4.9764 7.32609 5.8409C7.18992 5.99567 7.06604 6.15926 6.95559 6.33332Z" stroke="#333333" strokeWidth="2.375" strokeLinecap="round" strokeLinejoin="round" />
               </Svg>

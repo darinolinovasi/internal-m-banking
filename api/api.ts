@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://b518669801b3.ngrok-free.app/api/v1/', // Change to your API base URL
+    baseURL: 'https://166669759eac.ngrok-free.app/api/v1/', // Change to your API base URL
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -38,8 +38,13 @@ api.interceptors.response.use(
                 // Request new JWT using refresh token
                 const refreshResponse = await api.post('/auth/refresh', { refresh_token: refreshToken });
                 const newJwt = refreshResponse.data?.data?.jwt;
+                const newRefreshToken = refreshResponse.data?.data?.refresh_token;
+                if (!newRefreshToken) {
+                    throw error;
+                }
                 if (newJwt) {
                     await AsyncStorage.setItem('jwt', newJwt);
+                    await AsyncStorage.setItem('refresh_token', newRefreshToken);
                     // Update Authorization header and retry original request
                     originalRequest.headers['Authorization'] = `Bearer ${newJwt}`;
                     return api(originalRequest);

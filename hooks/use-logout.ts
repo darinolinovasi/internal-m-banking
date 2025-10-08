@@ -7,7 +7,6 @@ export function useLogout() {
     const logout = async () => {
         setLoading(true);
         const jwt = await AsyncStorage.getItem('jwt');
-        console.log('Logging out with JWT:', jwt);
         if (!jwt) {
             setLoading(false);
             return;
@@ -26,6 +25,7 @@ export function useLogout() {
         } catch (err) {
             // Optionally handle error
             console.log('Logout error:', err);
+            setLoading(false);
         }
     };
     return { logout, loading };

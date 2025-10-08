@@ -113,6 +113,14 @@ export default function SavedAccountsScreen() {
                 originatorCustomerNo: '',
                 originatorCustomerName: '',
                 originatorBankCode: '',
+                internalData: {
+                    recipientAccountID: viewAccount.id,
+                    recipientAccountType: "bank_account",
+                    recipientName: viewAccount.account_holder_name,
+                    bankID: viewAccount.bank.id,
+                    TransferType: "manual",
+                    TransactionType: "transfer_out"
+                }
             });
             setTransferResult({ success: true, message: 'Transfer berhasil!' });
             setShowSuccessModal(true);

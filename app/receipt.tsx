@@ -24,7 +24,6 @@ export default function ReceiptScreen() {
         transferResponse = null;
     }
     // Prefer transfer response data if available
-    console.log('Transfer Response:', data);
     referenceNo = data?.referenceNo || params.referenceNo || account.referenceNo || '-';
     trxId = data?.partnerReferenceNo || params.partnerReferenceNo || account.partnerReferenceNo || '-';
     const provider = transferResponse?.provider || account.provider || account.bank?.bank_name || '-';

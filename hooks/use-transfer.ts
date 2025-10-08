@@ -15,6 +15,14 @@ export interface TransferToAccountParams {
     beneficiaryAddress?: string;
     beneficiaryEmail?: string;
     transactionDate: string;
+    internalData?: {
+        recipientAccountID: number;
+        recipientAccountType: string;
+        recipientName: string;
+        bankID: number;
+        TransferType: string;
+        TransactionType: string;
+    };
 }
 
 export function useTransfer() {
@@ -84,6 +92,7 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
             sourceAccountNo,
             transactionDate: toISOWithTimezone(transactionDate),
             additionalInfo: {},
+            internalData: params.internalData
         };
         return api.post('/intrabank/transfer', body, { headers });
     } else {
@@ -107,6 +116,8 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
                 deviceId: '12345679237',
                 channel: 'mobilephone',
             },
+            remark: note,
+            internalData: params.internalData
         };
         return api.post('/interbank/transfer', body, { headers });
     }

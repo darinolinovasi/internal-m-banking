@@ -21,6 +21,18 @@ export function useSignIn() {
             if (response.data?.data?.refresh_token) {
                 await AsyncStorage.setItem('refresh_token', response.data.data.refresh_token);
             }
+
+            // save user info to AsyncStorage
+            if (response.data?.data?.user) {
+                const user = {
+                    id: response.data.data.user.id,
+                    email: response.data.data.user.email,
+                    full_name: response.data.data.user.full_name,
+                    role: response.data.data.user.role,
+                }
+
+                await AsyncStorage.setItem('user', JSON.stringify(user));
+            }
             return response.data;
         } catch (err: any) {
             if (err.response?.status == 400 && err.response?.data?.error == 'invalid credentials') {

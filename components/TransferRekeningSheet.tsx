@@ -39,6 +39,7 @@ export default function TransferRekeningSheet({
     const snapPoints = ['100%'];
     const [showAmountWarning, setShowAmountWarning] = React.useState(false);
 
+
     const handleTransfer = () => {
         const cleanAmount = String(tempAmount).replace(/[^\d]/g, '');
         if (!cleanAmount || Number(cleanAmount) === 0) {

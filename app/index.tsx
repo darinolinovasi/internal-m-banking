@@ -1,5 +1,6 @@
 import BottomNavbar from '@/components/BottomNavbar';
 import { useLogout } from '@/hooks/use-logout';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -16,11 +17,41 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showBalance, setShowBalance] = useState(true); // Add state for balance visibility
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [user, setUser] = useState<any>({
+    id: 0,
+    email: '',
+    full_name: '',
+    role: ''
+  });
+  // get user info from AsyncStorage and parse it to json
+  React.useEffect(() => {
+    const getUserInfo = async () => {
+      const userInfo = await AsyncStorage.getItem('user');
+      if (userInfo) {
+        const user = JSON.parse(userInfo);
+        setUser(user);
+      }
+    };
+    getUserInfo();
+  }, []);
 
   const handleLogout = async () => {
     await logout();
-    router.replace('/signin');
+    setTimeout(() => {
+      router.replace('/signin');
+    }, 1000);
+
   };
+
+  React.useEffect(() => {
+    const getUserInfo = async () => {
+      const userInfo = await AsyncStorage.getItem('user');
+      if (userInfo) {
+        const user = JSON.parse(userInfo);
+      }
+    };
+  }, []);
+
 
   React.useEffect(() => {
     if (modalVisible) {
@@ -73,7 +104,7 @@ export default function HomeScreen() {
           </View>
         </View>
         <Text style={styles.greeting}>
-          {t('hello')}, <Text style={styles.greetingName}>TAKUYA OHSAWA</Text>
+          {t('hello')}, <Text style={styles.greetingName}>{user.full_name}</Text>
         </Text>
         <Modal
           visible={modalVisible}

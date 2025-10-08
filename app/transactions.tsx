@@ -1,11 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import { useTransfersWithTransactions } from '../hooks/use-transfer';
 
 export default function TransactionsScreen() {
     const { t } = useTranslation();
+    const { transfers, loading, error, refetch, loadMore, hasMore } = useTransfersWithTransactions();
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
 
@@ -25,61 +28,29 @@ export default function TransactionsScreen() {
                     </View>
                 </View>
                 {/* Content */}
-                <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                    <Text style={styles.sectionTitle}>{t('previous_transactions')}</Text>
-                    {/* Date Group */}
-                    <Text style={styles.dateLabel}>1 Januari 2000</Text>
-                    <View style={styles.card}>
-                        <View style={styles.cardLeft}>
-                            <Text style={styles.cardName}>Alif Firdi</Text>
-                            <TouchableOpacity>
-                                <Text style={styles.cardBank}>{t('bank_transfer')}</Text>
-                            </TouchableOpacity>
+                <FlatList
+                    data={transfers}
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={({ item: transfer }) => (
+                        <View style={styles.card}>
+                            <View style={styles.cardLeft}>
+                                <Text style={styles.cardName}>{transfer.recipient_name}</Text>
+                                <TouchableOpacity>
+                                    <Text style={styles.cardBank}>{t('bank_transfer')}</Text>
+                                </TouchableOpacity>
+                                <Text style={{ fontSize: 12, color: '#888' }}>{transfer.note}</Text>
+                            </View>
+                            <View style={styles.cardRight}>
+                                <Text style={styles.cardAmount}>IDR {Number(transfer.amount).toLocaleString('id-ID', { minimumFractionDigits: 2 })}</Text>
+                                <Text style={styles.cardStatus}>{transfer.status}</Text>
+                            </View>
                         </View>
-                        <View style={styles.cardRight}>
-                            <Text style={styles.cardAmount}>IDR 600,000.00</Text>
-                            <Text style={styles.cardStatus}>{t('success')}</Text>
-                        </View>
-                    </View>
-                    <View style={styles.card}>
-                        <View style={styles.cardLeft}>
-                            <Text style={styles.cardName}>Alif Firdi</Text>
-                            <TouchableOpacity>
-                                <Text style={styles.cardBank}>{t('bank_transfer')}</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.cardRight}>
-                            <Text style={styles.cardAmount}>IDR 600,000.00</Text>
-                            <Text style={styles.cardStatus}>{t('success')}</Text>
-                        </View>
-                    </View>
-                    {/* Another Date Group */}
-                    <Text style={styles.dateLabel}>{t('sample_date')}</Text>
-                    <View style={styles.card}>
-                        <View style={styles.cardLeft}>
-                            <Text style={styles.cardName}>Alif Firdi</Text>
-                            <TouchableOpacity>
-                                <Text style={styles.cardBank}>{t('bank_transfer')}</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.cardRight}>
-                            <Text style={styles.cardAmount}>IDR 600,000.00</Text>
-                            <Text style={styles.cardStatus}>{t('success')}</Text>
-                        </View>
-                    </View>
-                    <View style={styles.card}>
-                        <View style={styles.cardLeft}>
-                            <Text style={styles.cardName}>Alif Firdi</Text>
-                            <TouchableOpacity>
-                                <Text style={styles.cardBank}>{t('bank_transfer')}</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.cardRight}>
-                            <Text style={styles.cardAmount}>IDR 600,000.00</Text>
-                            <Text style={styles.cardStatus}>{t('success')}</Text>
-                        </View>
-                    </View>
-                </ScrollView>
+                    )}
+                    ListHeaderComponent={<Text style={styles.sectionTitle}>{t('previous_transactions')}</Text>}
+                    ListFooterComponent={loading ? <Text style={{ margin: 16 }}>{t('loading')}</Text> : null}
+                    onEndReached={hasMore ? loadMore : null}
+                    onEndReachedThreshold={0.2}
+                />
             </View>
         </SafeAreaView>
     );

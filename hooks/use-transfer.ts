@@ -1,6 +1,6 @@
 import api from '@/api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface TransferToAccountParams {
     account: any;
@@ -121,4 +121,70 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
         };
         return api.post('/interbank/transfer', body, { headers });
     }
+}
+
+export async function fetchTransfersWithTransactions({ limit = 7, offset = 0 } = {}) {
+    try {
+        const response = await api.get('/account/transfers', { params: { limit, offset } });
+        if (response.data && response.data.success) {
+            return {
+                transfers: response.data.data?.data || [],
+                total: response.data.data?.total || 0,
+                limit: response.data.data?.limit || limit,
+                offset: response.data.data?.offset || offset,
+            };
+        }
+        return { transfers: [], total: 0, limit, offset };
+    } catch (error) {
+        console.error('Failed to fetch transfers:', error);
+        return { transfers: [], total: 0, limit, offset };
+    }
+}
+
+export function useTransfersWithTransactions() {
+    const [transfers, setTransfers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<any>(null);
+    const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const limit = 20;
+
+    const fetchTransfers = useCallback(async (reset = false) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const pageOffset = reset ? 0 : offset;
+            const result = await fetchTransfersWithTransactions({ limit, offset: pageOffset });
+            if (reset) {
+                setTransfers(result.transfers);
+            } else {
+                setTransfers(prev => [...prev, ...result.transfers]);
+            }
+            setOffset(pageOffset + limit);
+            setHasMore(result.transfers.length === limit);
+        } catch (err) {
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [offset]);
+
+    // Initial load
+    useEffect(() => {
+        fetchTransfers(true);
+    }, []);
+
+    const loadMore = useCallback(() => {
+        if (!loading && hasMore) {
+            fetchTransfers();
+        }
+    }, [loading, hasMore, fetchTransfers]);
+
+    const refetch = useCallback(() => {
+        setOffset(0);
+        setHasMore(true);
+        fetchTransfers(true);
+    }, [fetchTransfers]);
+
+    return { transfers, loading, error, refetch, loadMore, hasMore };
 }

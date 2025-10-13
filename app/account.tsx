@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,20 @@ export default function AccountScreen() {
         router.push('/create-pin');
     };
 
+    const [user, setUser] = useState<any>(null);
+
+    React.useEffect(() => {
+        const getUserInfo = async () => {
+            const userInfo = await AsyncStorage.getItem('user');
+            if (userInfo) {
+                const user = JSON.parse(userInfo);
+                setUser(user);
+            }
+        };
+
+        getUserInfo();
+    }, []);
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
@@ -36,9 +51,8 @@ export default function AccountScreen() {
                     <View style={styles.profileCard}>
                         <View style={styles.avatar} />
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.profileName}>Alif Firdi</Text>
-                            <Text style={styles.profileEmail}>aliffirdi07@gmail.com</Text>
-                            <Text style={styles.profilePhone}>+6283116448996</Text>
+                            <Text style={styles.profileName}>{user?.full_name}</Text>
+                            <Text style={styles.profileEmail}>{user?.email}</Text>
                         </View>
                     </View>
 

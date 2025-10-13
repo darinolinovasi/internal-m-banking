@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://a91ef00a98fb.ngrok-free.app/api/v1/', // Change to your API base URL
+    baseURL: 'https://e90cc390dee0.ngrok-free.app/api/v1/', // Change to your API base URL
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +8,11 @@ import Svg, { Path } from 'react-native-svg';
 export default function BottomNavbar() {
     const router = useRouter();
     const { t } = useTranslation();
-    return (
+    const [showTransferOptions, setShowTransferOptions] = React.useState(false);
+    const bottomSheetRef = React.useRef<BottomSheet>(null);
+    const snapPoints = React.useMemo(() => ['100%'], []);
+    return (<>
+
         <View style={styles.bottomNav}>
             <TouchableOpacity style={styles.navItem} onPress={() => router.navigate('/')}>
                 <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -22,7 +27,7 @@ export default function BottomNavbar() {
                 <Text style={styles.navLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{t('navbar.transactions')}</Text>
             </TouchableOpacity>
             <View style={styles.centerNavItemWrapper}>
-                <TouchableOpacity style={styles.centerNavItem} onPress={() => router.navigate('/saved-accounts')}>
+                <TouchableOpacity style={styles.centerNavItem} onPress={() => setShowTransferOptions(true)}>
                     <Svg width="46" height="46" viewBox="0 0 46 46" fill="none">
                         <Path fillRule="evenodd" clipRule="evenodd" d="M35.4008 25.8175C35.6704 25.5483 36.0357 25.3971 36.4167 25.3971C36.7976 25.3971 37.163 25.5483 37.4325 25.8175L41.2658 29.6508C41.4071 29.7824 41.5204 29.9411 41.5989 30.1175C41.6775 30.2938 41.7197 30.4841 41.7231 30.6772C41.7265 30.8702 41.691 31.0619 41.6187 31.2409C41.5464 31.4199 41.4388 31.5825 41.3023 31.719C41.1658 31.8555 41.0032 31.9631 40.8242 32.0354C40.6452 32.1077 40.4535 32.1432 40.2605 32.1398C40.0675 32.1364 39.8771 32.0941 39.7008 32.0156C39.5245 31.937 39.3658 31.8237 39.2342 31.6825L37.8542 30.3025V38.3333C37.8542 38.7146 37.7027 39.0802 37.4331 39.3498C37.1636 39.6194 36.7979 39.7708 36.4167 39.7708C36.0354 39.7708 35.6698 39.6194 35.4002 39.3498C35.1306 39.0802 34.9792 38.7146 34.9792 38.3333V30.3025L33.5992 31.6825C33.4676 31.8237 33.3089 31.937 33.1325 32.0156C32.9562 32.0941 32.7659 32.1364 32.5728 32.1398C32.3798 32.1432 32.1881 32.1077 32.0091 32.0354C31.8301 31.9631 31.6675 31.8555 31.531 31.719C31.3945 31.5825 31.2869 31.4199 31.2146 31.2409C31.1423 31.0619 31.1068 30.8702 31.1102 30.6772C31.1136 30.4841 31.1559 30.2938 31.2344 30.1175C31.313 29.9411 31.4263 29.7824 31.5675 29.6508L35.4008 25.8175Z" fill="white" />
                         <Path d="M19.1667 7.66666H26.8333C34.0611 7.66666 37.6759 7.66666 39.9203 9.91299C41.538 11.5287 41.9903 13.8556 42.1168 17.7292H3.88316C4.00966 13.8556 4.462 11.5287 6.07966 9.91299C8.32408 7.66666 11.9389 7.66666 19.1667 7.66666Z" fill="white" />
@@ -43,7 +48,53 @@ export default function BottomNavbar() {
                 </Svg>
                 <Text style={styles.navLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{t('navbar.account')}</Text>
             </TouchableOpacity>
+
         </View>
+        {showTransferOptions && (
+            <BottomSheet
+                ref={bottomSheetRef}
+                snapPoints={snapPoints}
+                enablePanDownToClose
+                onClose={() => setShowTransferOptions(false)}
+                enableDynamicSizing={false}
+            >
+                <View style={{ padding: 16 }}>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#222', textAlign: 'center', marginBottom: 4 }}>{t('transfer', 'Transfer')}</Text>
+                    <Text style={{ fontSize: 12, color: '#777', textAlign: 'center', marginBottom: 12 }}>{t('choose', 'Choose')}</Text>
+                    <TouchableOpacity
+                        onPress={() => { setShowTransferOptions(false); router.navigate('/saved-accounts'); }}
+                        style={{ flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, backgroundColor: '#F6FAFF', borderWidth: 1, borderColor: '#D6E9FF', marginBottom: 10 }}
+                    >
+                        <View style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: '#178AFF', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                            <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <Path d="M4 4H20V10H4V4Z" fill="white" />
+                                <Path d="M4 14H20V20H4V14Z" fill="white" />
+                            </Svg>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#0B3B74' }}>{t('transfer_to_saved_account')}</Text>
+                            <Text style={{ fontSize: 12, color: '#4B6A99' }}>{t('bank_transfer')}</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => { setShowTransferOptions(false); router.navigate('/virtual-account'); }}
+                        style={{ flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, backgroundColor: '#FFF8F0', borderWidth: 1, borderColor: '#FFE1C2' }}
+                    >
+                        <View style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: '#FF8A00', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                            <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <Path d="M3 6H21V18H3V6Z" fill="white" />
+                                <Path d="M6 9H18V15H6V9Z" fill="#FF8A00" />
+                            </Svg>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#7A3A00' }}>{t('transfer_to_new_virtual_account')}</Text>
+                            <Text style={{ fontSize: 12, color: '#A3601A' }}>{t('account_number_or_va')}</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </BottomSheet>
+        )}
+    </>
     );
 }
 

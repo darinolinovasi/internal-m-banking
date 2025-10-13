@@ -26,6 +26,7 @@ export function useAccount() {
 
         } catch (err: any) {
             setError(err?.message || 'Failed to fetch account');
+            console.log("Error fetching account balance:", err.response?.data);
             throw err;
         } finally {
             setLoading(false);

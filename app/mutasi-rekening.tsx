@@ -52,8 +52,14 @@ export default function MutasiRekeningScreen() {
 
     const onDateChange = (date: any, type: any) => {
         if (type === 'END_DATE') {
-            // Only allow max 30 days range
             if (startDate && date) {
+                // If end date is before start date, make picked date as new start date
+                if ((date as Date).getTime() < (startDate as Date).getTime()) {
+                    setStartDate(date);
+                    setEndDate(null);
+                    return;
+                }
+                // Only allow max 30 days range
                 const diff = Math.abs((date as Date).getTime() - (startDate as Date).getTime());
                 const diffDays = diff / (1000 * 60 * 60 * 24);
                 if (diffDays > 30) {
@@ -62,10 +68,26 @@ export default function MutasiRekeningScreen() {
                 }
             }
             setEndDate(date);
-        } else {
+            return;
+        }
+        if (startDate && endDate) {
+            // If picked date is not before start date, make it new end date
+            if ((date as Date).getTime() >= (startDate as Date).getTime()) {
+                setEndDate(date);
+                return;
+            }
+            // If picked date is before start date, make it new start date and clear end date
             setStartDate(date);
             setEndDate(null);
+            return;
+        } else if (startDate) {
+            // If user picks start date again, cancel state
+            setStartDate(undefined);
+            setEndDate(undefined);
+            return;
         }
+        setStartDate(date);
+        setEndDate(null);
     };
 
     return (
@@ -90,8 +112,6 @@ export default function MutasiRekeningScreen() {
                             selectedRangeStyle={{ backgroundColor: '#1976D2' }}
                             selectedDayColor={'#1976D2'}
                             selectedDayTextColor={'#fff'}
-                            minDate={minDate}
-                            maxDate={maxDate}
                         />
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
                             <TouchableOpacity onPress={() => setShowPicker(false)} style={{ marginRight: 16 }}>

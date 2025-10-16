@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import '../utils/i18n'; // Import i18n config for localization
 
+import { ErrorProvider } from '@/contexts/ErrorContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Inter_700Bold_Italic, Inter_900Black_Italic, useFonts } from '@expo-google-fonts/inter';
 import { useEffect } from 'react';
@@ -35,21 +36,23 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="signin" options={{ headerShown: false }} />
-        <Stack.Screen name="create-pin" options={{ headerShown: false }} />
-        <Stack.Screen name="confirmation-pin" options={{ headerShown: false }} />
-        <Stack.Screen name="saved-accounts" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="receipt" options={{ headerShown: false }} />
-        <Stack.Screen name="account" options={{ headerShown: false }} />
-        <Stack.Screen name="transactions" options={{ headerShown: false }} />
-        <Stack.Screen name="mutasi-rekening" options={{ headerShown: false }} />
-        <Stack.Screen name="virtual-account" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ErrorProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="signin" options={{ headerShown: false }} />
+          <Stack.Screen name="create-pin" options={{ headerShown: false }} />
+          <Stack.Screen name="confirmation-pin" options={{ headerShown: false }} />
+          <Stack.Screen name="saved-accounts" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="receipt" options={{ headerShown: false }} />
+          <Stack.Screen name="account" options={{ headerShown: false }} />
+          <Stack.Screen name="transactions" options={{ headerShown: false }} />
+          <Stack.Screen name="mutasi-rekening" options={{ headerShown: false }} />
+          <Stack.Screen name="virtual-account" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </ErrorProvider>
   );
 }

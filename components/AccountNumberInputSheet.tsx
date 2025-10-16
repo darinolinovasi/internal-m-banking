@@ -31,14 +31,13 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
         try {
             const response = await inquiry(bank, accountNumber);
             if (response.status === 200) {
-                console.log(response.data)
                 setSuccessData(response.data.data);
                 setShowSuccess(true);
             } else {
                 setError(t('account_not_found'));
             }
         } catch (err: any) {
-            console.log(err.response.data)
+            setError(inquiryError);
             // error handled by hook
         }
     };

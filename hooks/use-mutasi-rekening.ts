@@ -1,5 +1,8 @@
 import api from '@/api/api';
+import { useError } from '@/contexts/ErrorContext';
+import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 export interface MutasiTransaction {
@@ -89,6 +92,9 @@ export function useMutasiRekening() {
     const [responseMessage, setResponseMessage] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const fetchMutasi = useCallback(async (filters?: MutasiFilters) => {
         setLoading(true);
@@ -103,7 +109,14 @@ export function useMutasiRekening() {
             setResponseMessage(result.responseMessage);
         } catch (err: any) {
             console.error('Failed to fetch mutasi:', err);
-            setError(err?.response?.data?.error || err?.message || 'Gagal mengambil data mutasi');
+            const errorMessage = err?.response?.data?.error || err?.message || 'Gagal mengambil data mutasi';
+            setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Gagal Memuat Mutasi',
+                showRetry: true
+            });
         } finally {
             setLoading(false);
         }
@@ -245,6 +258,8 @@ export function useMutasiTransactionDetail() {
     const [transaction, setTransaction] = useState<MutasiTransaction | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showError } = useError();
+    const handleError = createErrorHandler(showError);
 
     const fetchDetail = useCallback(async (transactionId: string) => {
         setLoading(true);
@@ -255,7 +270,14 @@ export function useMutasiTransactionDetail() {
             setTransaction(result);
             return result;
         } catch (err: any) {
-            setError(err?.response?.data?.error || err?.message || 'Gagal mengambil detail transaksi');
+            const errorMessage = err?.response?.data?.error || err?.message || 'Gagal mengambil detail transaksi';
+            setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Gagal Memuat Detail',
+                showRetry: true
+            });
             throw err;
         } finally {
             setLoading(false);

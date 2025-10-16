@@ -1,10 +1,16 @@
 import api from '@/api/api';
+import { useError } from '@/contexts/ErrorContext';
+import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export function useVerifyPin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const verifyPin = async (pin: string) => {
         setLoading(true);
@@ -18,7 +24,14 @@ export function useVerifyPin() {
             );
             return response;
         } catch (err: any) {
-            setError(err.response?.data?.message || 'PIN yang Anda masukkan salah.');
+            const errorMessage = err.response?.data?.message || 'PIN yang Anda masukkan salah.';
+            setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Verifikasi PIN Gagal',
+                showRetry: true
+            });
             throw err;
         } finally {
             setLoading(false);

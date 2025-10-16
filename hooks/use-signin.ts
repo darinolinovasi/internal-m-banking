@@ -1,11 +1,17 @@
 import api from '@/api/api';
+import { useError } from '@/contexts/ErrorContext';
+import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export function useSignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<any>(null);
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const signIn = async (email: string, password: string) => {
         setLoading(true);
@@ -35,11 +41,26 @@ export function useSignIn() {
             }
             return response.data;
         } catch (err: any) {
-            if (err.response?.status == 400 && err.response?.data?.error == 'invalid credentials') {
-                setError('Email atau password salah');
+            // Handle specific login errors
+            const errorData = err.response?.data?.error;
+            const errorMessage = typeof errorData === 'object'
+                ? errorData?.responseMessage
+                : errorData;
+
+            if (err.response?.status === 400 && errorMessage === 'invalid credentials') {
+                const userMessage = 'Email atau password salah';
+                setError(userMessage);
+                showError(userMessage, { title: 'Login Gagal' });
                 return;
             }
-            setError(err.response?.data?.message || 'Login gagal');
+
+            // Use the new error handler for other errors
+            handleError(err, {
+                title: 'Login Gagal',
+                showRetry: true
+            });
+            const fallbackMessage = err.response?.data?.message || 'Login gagal';
+            setError(fallbackMessage);
             throw err;
         } finally {
             setLoading(false);

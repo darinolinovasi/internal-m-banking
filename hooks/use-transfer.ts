@@ -1,5 +1,8 @@
 import api from '@/api/api';
+import { useError } from '@/contexts/ErrorContext';
+import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface TransferToAccountParams {
@@ -28,6 +31,9 @@ export interface TransferToAccountParams {
 export function useTransfer() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const transferToAccount = async (params: TransferToAccountParams) => {
         setLoading(true);
@@ -36,8 +42,27 @@ export function useTransfer() {
             const result = await rawTransferToAccount(params);
             return result;
         } catch (err: any) {
-            console.log(err.response.data)
-            setError(err?.response?.data?.error || err?.message || 'Transfer gagal');
+            console.log(err.response.data);
+
+            // Extract error message based on API response structure
+            const errorData = err?.response?.data?.error;
+            let errorMessage = 'Transfer gagal';
+
+            if (typeof errorData === 'object' && errorData !== null) {
+                errorMessage = errorData.responseMessage || err?.message || 'Transfer gagal';
+            } else if (typeof errorData === 'string') {
+                errorMessage = errorData;
+            } else {
+                errorMessage = err?.message || 'Transfer gagal';
+            }
+
+            setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Transfer Gagal',
+                showRetry: true
+            });
             throw err;
         } finally {
             setLoading(false);
@@ -151,6 +176,9 @@ export function useTransfersWithTransactions() {
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const limit = 20;
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const fetchTransfers = useCallback(async (reset = false) => {
         setLoading(true);
@@ -167,8 +195,27 @@ export function useTransfersWithTransactions() {
             setHasMore(result.transfers.length === limit);
         } catch (err: any) {
             console.log("ERROR:")
-            console.log(err.response.data)
-            setError(err?.response?.data?.error || err?.message || 'Transfer gagal');
+            console.log(err.response.data);
+
+            // Extract error message based on API response structure
+            const errorData = err?.response?.data?.error;
+            let errorMessage = 'Gagal mengambil data transfer';
+
+            if (typeof errorData === 'object' && errorData !== null) {
+                errorMessage = errorData.responseMessage || err?.message || 'Gagal mengambil data transfer';
+            } else if (typeof errorData === 'string') {
+                errorMessage = errorData;
+            } else {
+                errorMessage = err?.message || 'Gagal mengambil data transfer';
+            }
+
+            setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Gagal Memuat Data',
+                showRetry: true
+            });
         } finally {
             setLoading(false);
         }

@@ -1,5 +1,8 @@
 import api from '@/api/api';
+import { useError } from '@/contexts/ErrorContext';
+import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export interface VirtualAccountTransferParams {
@@ -32,6 +35,9 @@ export interface VirtualAccountTransferParams {
 export function useVirtualAccountTransfer() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const transferToVirtualAccount = async (params: VirtualAccountTransferParams) => {
         setLoading(true);
@@ -40,7 +46,14 @@ export function useVirtualAccountTransfer() {
             const result = await rawTransferToVirtualAccount(params);
             return result;
         } catch (err: any) {
-            setError(err?.response?.data?.error || err?.message || 'Transfer gagal');
+            const errorMessage = err?.response?.data?.error || err?.message || 'Transfer ke Virtual Account gagal';
+            setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Transfer VA Gagal',
+                showRetry: true
+            });
             throw err;
         } finally {
             setLoading(false);

@@ -1,11 +1,17 @@
 import api from '@/api/api';
+import { useError } from '@/contexts/ErrorContext';
+import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 export function useVirtualAccountInquiry() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sessionExpired, setSessionExpired] = useState(false);
+    const { showError } = useError();
+    const router = useRouter();
+    const handleError = createErrorHandler(showError, router);
 
     const inquiryVirtualAccount = async (virtualAccountNumber: string) => {
         setLoading(true);
@@ -39,8 +45,14 @@ export function useVirtualAccountInquiry() {
         } catch (err: any) {
             const errorMessage = getVirtualAccountErrorMessage(err);
             console.log("ERROR:")
-            console.log(err.response.data)
+            console.log(err.response.data);
             setError(errorMessage);
+
+            // Show error modal with retry option
+            handleError(err, {
+                title: 'Gagal Validasi VA',
+                showRetry: true
+            });
         } finally {
             setLoading(false);
         }

@@ -103,5 +103,23 @@
         "transfer": "Transfer",
         "schedule": "Schedule",
         "account": "My Account"
-    }
+    },
+    "payroll_account_note": "Payroll account",
+    "loading_transactions": "Loading transactions...",
+    "error_title": "Error",
+    "retry": "Retry",
+    "ok": "OK",
+    "network_error_message": "No internet connection. Please check your connection and try again.",
+    "network_error_title": "Connection Failed",
+    "transaction_success": "Transaction completed successfully.",
+    "failed_fetch_mutasi": "Failed to fetch transaction data",
+    "failed_fetch_transfer": "Failed to fetch transfer data",
+    "login_failed": "Login Failed",
+    "email_password_required": "Email and password are required.",
+    "email_address": "Email Address",
+    "enter_email": "Enter Email",
+    "password": "Password",
+    "enter_password": "Enter Password",
+    "forgot_password": "Forgot Password?",
+    "reset": "Reset"
 }

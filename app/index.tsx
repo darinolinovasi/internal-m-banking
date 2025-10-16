@@ -2,7 +2,7 @@ import BottomNavbar from '@/components/BottomNavbar';
 import SessionExpiredModal from '@/components/SessionExpiredModal';
 import { useAccount } from '@/hooks/use-account';
 import { useLogout } from '@/hooks/use-logout';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SecureStorage } from '@/utils/secureStorage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -18,7 +18,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const { logout, loading } = useLogout();
   const [modalVisible, setModalVisible] = useState(false);
-  const [showBalance, setShowBalance] = useState(true); // Add state for balance visibility
+  const [showBalance, setShowBalance] = useState(false); // Add state for balance visibility
   const [fadeAnim] = useState(new Animated.Value(0));
   const { account, fetchAccountBalance, loading: accountLoading, sessionExpired, clearSessionExpired } = useAccount();
   const [user, setUser] = useState<any>({
@@ -34,13 +34,12 @@ export default function HomeScreen() {
     await fetchAccountBalance('2000100101');
     setRefreshing(false);
   };
-  // get user info from AsyncStorage and parse it to json
+  // get user info from secure storage
   React.useEffect(() => {
     const getUserInfo = async () => {
-      const userInfo = await AsyncStorage.getItem('user');
+      const userInfo = await SecureStorage.getUserInfo();
       if (userInfo) {
-        const user = JSON.parse(userInfo);
-        setUser(user);
+        setUser(userInfo);
       }
     };
     fetchAccountBalance('2000100101'); // Replace with actual account number

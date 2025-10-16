@@ -1,9 +1,12 @@
 import api from '@/api/api';
+import { SECURITY_CONFIG } from '@/config/security';
 import { useError } from '@/contexts/ErrorContext';
 import { createErrorHandler } from '@/utils/errorHandler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { validateAccountNumber, validateAmount } from '@/utils/inputValidation';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface TransferToAccountParams {
     account: any;
@@ -29,6 +32,7 @@ export interface TransferToAccountParams {
 }
 
 export function useTransfer() {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
@@ -38,6 +42,24 @@ export function useTransfer() {
     const transferToAccount = async (params: TransferToAccountParams) => {
         setLoading(true);
         setError(null);
+
+        // Validate input
+        const amountValidation = validateAmount(params.amount);
+        if (!amountValidation.isValid) {
+            setError(amountValidation.error || 'Invalid amount');
+            setLoading(false);
+            return;
+        }
+
+        if (params.account?.account_number) {
+            const accountValidation = validateAccountNumber(params.account.account_number);
+            if (!accountValidation.isValid) {
+                setError(accountValidation.error || 'Invalid account number');
+                setLoading(false);
+                return;
+            }
+        }
+
         try {
             const result = await rawTransferToAccount(params);
             return result;
@@ -78,7 +100,7 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
         throw new Error('Invalid account data');
     }
     const value = typeof amount === 'string' ? parseFloat(amount.replace(/[^\d.]/g, '')) : Number(amount);
-    const jwt = await AsyncStorage.getItem('jwt');
+    const jwt = await SecureStorage.getJWT();
     const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
     // Convert transactionDate to ISO format with timezone +07:00
@@ -139,8 +161,8 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
             sourceAccountNo,
             transactionDate: toISOWithTimezone(transactionDate),
             additionalInfo: {
-                deviceId: '12345679237',
-                channel: 'mobilephone',
+                deviceId: SECURITY_CONFIG.DEVICE_ID,
+                channel: SECURITY_CONFIG.CHANNEL,
             },
             remark: note,
             internalData: params.internalData
@@ -170,6 +192,7 @@ export async function fetchTransfersWithTransactions({ limit = 7, offset = 0 } =
 }
 
 export function useTransfersWithTransactions() {
+    const { t } = useTranslation();
     const [transfers, setTransfers] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<any>(null);
@@ -199,14 +222,14 @@ export function useTransfersWithTransactions() {
 
             // Extract error message based on API response structure
             const errorData = err?.response?.data?.error;
-            let errorMessage = 'Gagal mengambil data transfer';
+            let errorMessage = t('failed_fetch_transfer');
 
             if (typeof errorData === 'object' && errorData !== null) {
-                errorMessage = errorData.responseMessage || err?.message || 'Gagal mengambil data transfer';
+                errorMessage = errorData.responseMessage || err?.message || t('failed_fetch_transfer');
             } else if (typeof errorData === 'string') {
                 errorMessage = errorData;
             } else {
-                errorMessage = err?.message || 'Gagal mengambil data transfer';
+                errorMessage = err?.message || t('failed_fetch_transfer');
             }
 
             setError(errorMessage);

@@ -1,12 +1,12 @@
 import api from '@/api/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useState } from 'react';
 
 export function useLogout() {
     const [loading, setLoading] = useState(false);
     const logout = async () => {
         setLoading(true);
-        const jwt = await AsyncStorage.getItem('jwt');
+        const jwt = await SecureStorage.getJWT();
         if (!jwt) {
             setLoading(false);
             return;
@@ -19,8 +19,7 @@ export function useLogout() {
                     'Authorization': `Bearer ${jwt}`
                 },
             });
-            await AsyncStorage.removeItem('jwt');
-            await AsyncStorage.removeItem('refresh_token');
+            await SecureStorage.logout();
             setLoading(false);
         } catch (err) {
             // Optionally handle error

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface InfoModalWithButtonProps {
@@ -9,7 +10,9 @@ interface InfoModalWithButtonProps {
     onButtonPress?: () => void;
 }
 
-export default function InfoModalWithButton({ visible, message, loading, buttonText = 'OK', onButtonPress }: InfoModalWithButtonProps) {
+export default function InfoModalWithButton({ visible, message, loading, buttonText, onButtonPress }: InfoModalWithButtonProps) {
+    const { t } = useTranslation();
+
     return (
         <Modal visible={visible} transparent animationType="fade">
             <View style={styles.overlay}>
@@ -18,7 +21,7 @@ export default function InfoModalWithButton({ visible, message, loading, buttonT
                     <Text style={styles.text}>{message}</Text>
                     {onButtonPress && (
                         <TouchableOpacity style={styles.button} onPress={onButtonPress}>
-                            <Text style={styles.buttonText}>{buttonText}</Text>
+                            <Text style={styles.buttonText}>{buttonText || t('ok')}</Text>
                         </TouchableOpacity>
                     )}
                 </View>

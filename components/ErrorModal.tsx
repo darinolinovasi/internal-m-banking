@@ -17,7 +17,7 @@ export default function ErrorModal({
     title,
     message,
     onClose,
-    buttonText = 'OK',
+    buttonText,
     showRetry = false,
     onRetry
 }: ErrorModalProps) {
@@ -61,7 +61,7 @@ export default function ErrorModal({
                             onPress={onClose}
                         >
                             <Text style={styles.primaryButtonText}>
-                                {buttonText}
+                                {buttonText || t('ok')}
                             </Text>
                         </TouchableOpacity>
                     </View>

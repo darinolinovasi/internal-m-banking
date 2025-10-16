@@ -1,9 +1,11 @@
 import api from '@/api/api';
+import { SECURITY_CONFIG } from '@/config/security';
 import { useError } from '@/contexts/ErrorContext';
 import { createErrorHandler } from '@/utils/errorHandler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface MutasiTransaction {
     detailBalance: {
@@ -85,6 +87,7 @@ export interface MutasiResponse {
 }
 
 export function useMutasiRekening() {
+    const { t } = useTranslation();
     const [transactions, setTransactions] = useState<MutasiTransaction[]>([]);
     const [summary, setSummary] = useState<MutasiSummary | null>(null);
     const [referenceNo, setReferenceNo] = useState<string>('');
@@ -109,12 +112,12 @@ export function useMutasiRekening() {
             setResponseMessage(result.responseMessage);
         } catch (err: any) {
             console.error('Failed to fetch mutasi:', err);
-            const errorMessage = err?.response?.data?.error || err?.message || 'Gagal mengambil data mutasi';
+            const errorMessage = err?.response?.data?.error || err?.message || t('failed_fetch_mutasi');
             setError(errorMessage);
 
             // Show error modal with retry option
             handleError(err, {
-                title: 'Gagal Memuat Mutasi',
+                title: t('failed_fetch_mutasi'),
                 showRetry: true
             });
         } finally {
@@ -150,17 +153,17 @@ export async function fetchMutasiTransactions({
     filters?: MutasiFilters;
 }): Promise<MutasiResponse> {
     try {
-        const jwt = await AsyncStorage.getItem('jwt');
+        const jwt = await SecureStorage.getJWT();
         const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
         // Generate partner reference number (timestamp-based)
         const partnerReferenceNo = `MUTASI${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
 
-        // Get bank card token from storage (you may need to adjust this based on your app's storage)
-        const bankCardToken = await AsyncStorage.getItem('bankCardToken') || '6d7963617264746f6b656e';
+        // Get bank card token from secure storage
+        const bankCardToken = await SecureStorage.getItem('bank_card_token') || SECURITY_CONFIG.BANK_CARD_TOKEN;
 
-        // Get account number from storage (you may need to adjust this based on your app's storage)
-        const accountNo = await AsyncStorage.getItem('accountNo') || '2000200202';
+        // Get account number from storage
+        const accountNo = await SecureStorage.getItem('account_number') || '2000200202';
 
         // Build request body according to the provided JSON structure
         const requestBody: any = {
@@ -168,8 +171,8 @@ export async function fetchMutasiTransactions({
             bankCardToken,
             accountNo,
             additionalInfo: {
-                deviceId: '12345679237',
-                channel: 'mobilephone'
+                deviceId: SECURITY_CONFIG.DEVICE_ID,
+                channel: SECURITY_CONFIG.CHANNEL
             }
         };
 
@@ -218,17 +221,17 @@ export async function fetchMutasiTransactions({
 
 export async function fetchMutasiTransactionDetail(transactionId: string) {
     try {
-        const jwt = await AsyncStorage.getItem('jwt');
+        const jwt = await SecureStorage.getJWT();
         const headers = jwt ? { Authorization: `Bearer ${jwt}` } : {};
 
         // Generate partner reference number for detail request
         const partnerReferenceNo = `DETAIL${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
 
-        // Get bank card token from storage
-        const bankCardToken = await AsyncStorage.getItem('bankCardToken') || '6d7963617264746f6b656e';
+        // Get bank card token from secure storage
+        const bankCardToken = await SecureStorage.getItem('bank_card_token') || SECURITY_CONFIG.BANK_CARD_TOKEN;
 
         // Get account number from storage
-        const accountNo = await AsyncStorage.getItem('accountNo') || '2000200202';
+        const accountNo = await SecureStorage.getItem('account_number') || '2000200202';
 
         const requestBody = {
             partnerReferenceNo,
@@ -236,8 +239,8 @@ export async function fetchMutasiTransactionDetail(transactionId: string) {
             accountNo,
             transactionId,
             additionalInfo: {
-                deviceId: '12345679237',
-                channel: 'mobilephone'
+                deviceId: SECURITY_CONFIG.DEVICE_ID,
+                channel: SECURITY_CONFIG.CHANNEL
             }
         };
 

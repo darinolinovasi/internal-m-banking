@@ -1,5 +1,6 @@
 import api from "@/api/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SECURITY_CONFIG } from "@/config/security";
+import { SecureStorage } from "@/utils/secureStorage";
 import { useState } from "react";
 
 export function useAccount() {
@@ -12,15 +13,12 @@ export function useAccount() {
         setLoading(true);
         setError(null);
         try {
-            // Simulate API call
+            // Get bank card token from secure storage or use default
+            const bankCardToken = await SecureStorage.getItem('bank_card_token') || SECURITY_CONFIG.BANK_CARD_TOKEN;
+
             const response = await api.post('/account/balance', {
                 accountNo,
-                bankCardToken: "6d7963617264746f6b656e"
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await AsyncStorage.getItem('jwt')}`
-                },
+                bankCardToken
             });
 
             setAccount(response.data?.data || null);

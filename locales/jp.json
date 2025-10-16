@@ -102,5 +102,23 @@
         "transfer": "振込",
         "schedule": "スケジュール",
         "account": "マイアカウント"
-    }
+    },
+    "payroll_account_note": "給与口座",
+    "loading_transactions": "取引を読み込み中...",
+    "error_title": "エラー",
+    "retry": "再試行",
+    "ok": "OK",
+    "network_error_message": "インターネット接続がありません。接続を確認して再試行してください。",
+    "network_error_title": "接続失敗",
+    "transaction_success": "取引が正常に完了しました。",
+    "failed_fetch_mutasi": "取引データの取得に失敗しました",
+    "failed_fetch_transfer": "送金データの取得に失敗しました",
+    "login_failed": "ログイン失敗",
+    "email_password_required": "メールアドレスとパスワードは必須です。",
+    "email_address": "メールアドレス",
+    "enter_email": "メールアドレスを入力",
+    "password": "パスワード",
+    "enter_password": "パスワードを入力",
+    "forgot_password": "パスワードを忘れましたか？",
+    "reset": "リセット"
 }

@@ -164,7 +164,7 @@ export default function MutasiRekeningScreen() {
                 {loading ? (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color="#1976D2" />
-                        <Text style={styles.loadingText}>Loading transactions...</Text>
+                        <Text style={styles.loadingText}>{t('loading_transactions')}</Text>
                     </View>
                 ) : transactions.length > 0 ? (
                     transactions.map((transaction, idx) => {

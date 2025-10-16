@@ -1,7 +1,9 @@
 import api from '@/api/api';
+import { SECURITY_CONFIG } from '@/config/security';
 import { useError } from '@/contexts/ErrorContext';
 import { createErrorHandler } from '@/utils/errorHandler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { validateAccountNumber } from '@/utils/inputValidation';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -15,6 +17,15 @@ export function useInquiry() {
     const inquiry = async (bank: { bank_code: string }, accountNumber: string) => {
         setLoading(true);
         setError(null);
+
+        // Validate account number
+        const accountValidation = validateAccountNumber(accountNumber);
+        if (!accountValidation.isValid) {
+            setError(accountValidation.error || 'Invalid account number');
+            setLoading(false);
+            return;
+        }
+
         try {
             let endpoint = bank.bank_code === '002' ? '/intrabank/inquiry' : '/interbank/inquiry';
             let requestBody;
@@ -22,8 +33,8 @@ export function useInquiry() {
                 requestBody = {
                     beneficiaryAccountNo: accountNumber,
                     additionalInfo: {
-                        deviceId: '12345679237',
-                        channel: 'mobilephone',
+                        deviceId: SECURITY_CONFIG.DEVICE_ID,
+                        channel: SECURITY_CONFIG.CHANNEL,
                     },
                 };
             } else {
@@ -31,12 +42,12 @@ export function useInquiry() {
                     beneficiaryBankCode: bank.bank_code,
                     beneficiaryAccountNo: accountNumber,
                     additionalInfo: {
-                        deviceId: '12345679237',
-                        channel: 'mobilephone',
+                        deviceId: SECURITY_CONFIG.DEVICE_ID,
+                        channel: SECURITY_CONFIG.CHANNEL,
                     },
                 };
             }
-            const jwt = await AsyncStorage.getItem('jwt');
+            const jwt = await SecureStorage.getJWT();
             const response = await api.post(endpoint, requestBody, {
                 headers: {
                     Authorization: `Bearer ${jwt}`,

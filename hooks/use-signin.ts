@@ -1,7 +1,8 @@
 import api from '@/api/api';
 import { useError } from '@/contexts/ErrorContext';
 import { createErrorHandler } from '@/utils/errorHandler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { validateEmail, validatePasswordStrength } from '@/utils/inputValidation';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -16,19 +17,37 @@ export function useSignIn() {
     const signIn = async (email: string, password: string) => {
         setLoading(true);
         setError(null);
+
+        // Validate input
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.isValid) {
+            setError(emailValidation.error || 'Invalid email');
+            setLoading(false);
+            return;
+        }
+
+        const passwordValidation = validatePasswordStrength(password);
+        if (!passwordValidation.isValid) {
+            setError(passwordValidation.error || 'Invalid password');
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await api.post('/auth/login', { email, password });
             setData(response.data);
-            // Save JWT to AsyncStorage
+
+            // Save JWT securely
             if (response.data?.data?.jwt) {
-                await AsyncStorage.setItem('jwt', response.data.data.jwt);
-            }
-            // Save refresh_token to AsyncStorage
-            if (response.data?.data?.refresh_token) {
-                await AsyncStorage.setItem('refresh_token', response.data.data.refresh_token);
+                await SecureStorage.setJWT(response.data.data.jwt);
             }
 
-            // save user info to AsyncStorage
+            // Save refresh_token securely
+            if (response.data?.data?.refresh_token) {
+                await SecureStorage.setRefreshToken(response.data.data.refresh_token);
+            }
+
+            // Save user info (non-sensitive)
             if (response.data?.data?.user) {
                 const user = {
                     id: response.data.data.user.id,
@@ -37,7 +56,7 @@ export function useSignIn() {
                     role: response.data.data.user.role,
                 }
 
-                await AsyncStorage.setItem('user', JSON.stringify(user));
+                await SecureStorage.setUserInfo(user);
             }
             return response.data;
         } catch (err: any) {

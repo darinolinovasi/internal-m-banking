@@ -30,8 +30,8 @@ export default function AccountNumberInputSheet({ bank, accountNumber, setAccoun
     const handleInquiry = async () => {
         try {
             const response = await inquiry(bank, accountNumber);
-            if (response.status === 200) {
-                setSuccessData(response.data.data);
+            if (response?.status === 200) {
+                setSuccessData(response?.data.data);
                 setShowSuccess(true);
             } else {
                 setError(t('account_not_found'));

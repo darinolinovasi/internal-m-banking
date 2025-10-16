@@ -38,6 +38,13 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Use Face ID to authenticate",
+          "touchIDPermission": "Use Touch ID to authenticate"
+        }
       ]
     ],
     "experiments": {

@@ -129,11 +129,11 @@ export default function SavedAccountsScreen() {
                 router.replace({
                     pathname: '/receipt', params: {
                         account: JSON.stringify(viewAccount),
-                        data: JSON.stringify(response.data.data),
+                        data: JSON.stringify(response?.data.data),
                         amount: cleanAmount,
                         note: tempNote,
                         result: 'success',
-                        transferResponse: JSON.stringify(response.data.data),
+                        transferResponse: JSON.stringify(response?.data.data),
                     }
                 });
             }, 1000);

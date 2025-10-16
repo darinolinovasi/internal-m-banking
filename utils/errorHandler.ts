@@ -1,5 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
+import { useTranslation } from 'react-i18next';
+import { SecureStorage } from './secureStorage';
 
 /**
  * Helper function to extract error message from API response
@@ -132,11 +133,12 @@ export interface ProcessedError {
  * Simplified version: only checks HTTP status codes
  */
 export function processApiError(error: any): ProcessedError {
+    const { t } = useTranslation();
     // Network error (no response)
     if (!error.response) {
         return {
-            message: 'Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.',
-            title: 'Koneksi Gagal',
+            message: t('network_error_message', 'Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.'),
+            title: t('network_error_title', 'Koneksi Gagal'),
             showRetry: true,
             isNetworkError: true,
         };
@@ -149,8 +151,8 @@ export function processApiError(error: any): ProcessedError {
     // Success (200) - should not reach here as error, but handle just in case
     if (status === 200) {
         return {
-            message: 'Transaksi berhasil dilakukan.',
-            title: 'Berhasil',
+            message: t('transaction_success', 'Transaksi berhasil dilakukan.'),
+            title: t('success'),
             showRetry: false,
         };
     }
@@ -160,8 +162,8 @@ export function processApiError(error: any): ProcessedError {
         console.log('🚨 401 Error detected:', { data, status });
 
         // Check if it's invalid PIN error
-        let errorMessage = 'Sesi Anda telah berakhir. Silakan login kembali.';
-        let title = 'Sesi Berakhir';
+        let errorMessage = t('session_expired_message');
+        let title = t('session_expired_title');
         let isSessionExpired = true;
         let shouldRedirectToSignin = true;
 
@@ -172,15 +174,15 @@ export function processApiError(error: any): ProcessedError {
 
             if (extractedMessage && extractedMessage.toLowerCase().includes('invalid pin')) {
                 console.log('📌 Invalid PIN detected - NOT redirecting');
-                errorMessage = 'PIN yang dimasukkan salah. Silakan coba lagi.';
-                title = 'PIN Salah';
+                errorMessage = t('pin_wrong_message');
+                title = t('pin_wrong_title');
                 isSessionExpired = false;
                 shouldRedirectToSignin = false;
             }
         } else if (data?.message && data.message.toLowerCase().includes('invalid pin')) {
             console.log('📌 Invalid PIN detected in message - NOT redirecting');
-            errorMessage = 'PIN yang dimasukkan salah. Silakan coba lagi.';
-            title = 'PIN Salah';
+            errorMessage = t('pin_wrong_message');
+            title = t('pin_wrong_title');
             isSessionExpired = false;
             shouldRedirectToSignin = false;
         }
@@ -253,9 +255,7 @@ export function createErrorHandler(showError: (message: string, options?: any) =
                 onClose: () => {
                     console.log('📱 Modal closed - clearing tokens and redirecting');
                     // Clear any stored tokens before redirecting
-                    AsyncStorage.removeItem('jwt');
-                    AsyncStorage.removeItem('refresh_token');
-                    AsyncStorage.removeItem('user');
+                    SecureStorage.logout();
 
                     // Redirect to signin screen
                     router.replace('/signin');

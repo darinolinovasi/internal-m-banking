@@ -1,6 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Rect } from 'react-native-svg';
@@ -8,6 +9,7 @@ import VerifyPinModal from '../components/VerifyPinModal';
 import { useSignIn } from '../hooks/use-signin';
 
 export default function SignInScreen() {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +26,7 @@ export default function SignInScreen() {
 
     React.useEffect(() => {
         const checkJwt = async () => {
-            const jwt = await AsyncStorage.getItem('jwt');
+            const jwt = await SecureStorage.getJWT();
             if (jwt) {
                 setPinModalVisible(true);
             }
@@ -34,7 +36,7 @@ export default function SignInScreen() {
 
     const handleLogin = async () => {
         if (!email || !password) {
-            setErrorMessage('Email dan katasandi wajib diisi.');
+            setErrorMessage(t('email_password_required'));
             setShowErrorModal(true);
             return;
         }
@@ -57,21 +59,21 @@ export default function SignInScreen() {
             <Modal visible={showErrorModal && !!errorMessage} transparent animationType="fade" onRequestClose={() => setShowErrorModal(false)}>
                 <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
-                        <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>Login Gagal</Text>
+                        <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>{t('login_failed')}</Text>
                         <Text style={{ color: '#222', fontSize: 16 }}>{errorMessage}</Text>
                         <TouchableOpacity style={{ marginTop: 24 }} onPress={() => setShowErrorModal(false)}>
-                            <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>Tutup</Text>
+                            <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>{t('close')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
             <View style={styles.container}>
-                <Text style={styles.title}>Masuk</Text>
+                <Text style={styles.title}>{t('signin')}</Text>
                 <View style={{ marginTop: 40, width: '100%' }}>
-                    <Text style={styles.label}>Alamat Email</Text>
+                    <Text style={styles.label}>{t('email_address')}</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Masukan Email"
+                        placeholder={t('enter_email')}
                         placeholderTextColor="#BFC6D1"
                         value={email}
                         onChangeText={setEmail}
@@ -80,11 +82,11 @@ export default function SignInScreen() {
                     />
                 </View>
                 <View style={{ marginTop: 32 }}>
-                    <Text style={styles.label}>Katasandi</Text>
+                    <Text style={styles.label}>{t('password')}</Text>
                     <View style={styles.passwordWrapper}>
                         <TextInput
                             style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                            placeholder="Masukan Katasandi"
+                            placeholder={t('enter_password')}
                             placeholderTextColor="#BFC6D1"
                             value={password}
                             onChangeText={setPassword}
@@ -102,10 +104,10 @@ export default function SignInScreen() {
                     </View>
                 </View>
                 <TouchableOpacity style={styles.signInButton} onPress={handleLogin} disabled={loading}>
-                    <Text style={styles.signInButtonText}>{loading ? 'Loading...' : 'Masuk'}</Text>
+                    <Text style={styles.signInButtonText}>{loading ? t('loading') : t('signin')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{ marginTop: 24 }}>
-                    <Text style={styles.forgotText}>Lupa Katasandi? <Text style={styles.resetText}>Atur Ulang</Text></Text>
+                    <Text style={styles.forgotText}>{t('forgot_password')} <Text style={styles.resetText}>{t('reset')}</Text></Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

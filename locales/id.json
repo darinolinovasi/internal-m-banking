@@ -103,5 +103,23 @@
         "transfer": "Transfer",
         "schedule": "Jadwal",
         "account": "Akun Saya"
-    }
+    },
+    "payroll_account_note": "Rekening payroll",
+    "loading_transactions": "Memuat transaksi...",
+    "error_title": "Error",
+    "retry": "Coba Lagi",
+    "ok": "OK",
+    "network_error_message": "Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.",
+    "network_error_title": "Koneksi Gagal",
+    "transaction_success": "Transaksi berhasil dilakukan.",
+    "failed_fetch_mutasi": "Gagal mengambil data mutasi",
+    "failed_fetch_transfer": "Gagal mengambil data transfer",
+    "login_failed": "Login Gagal",
+    "email_password_required": "Email dan katasandi wajib diisi.",
+    "email_address": "Alamat Email",
+    "enter_email": "Masukan Email",
+    "password": "Katasandi",
+    "enter_password": "Masukan Katasandi",
+    "forgot_password": "Lupa Katasandi?",
+    "reset": "Atur Ulang"
 }

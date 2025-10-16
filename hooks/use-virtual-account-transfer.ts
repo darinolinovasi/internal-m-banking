@@ -104,5 +104,5 @@ export async function rawTransferToVirtualAccount(params: VirtualAccountTransfer
         },
     };
 
-    return api.post('/va/transfer', body, { headers });
+    return api.post('/transfer-va/payment-intrabank', body, { headers });
 }

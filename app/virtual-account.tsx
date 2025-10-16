@@ -5,6 +5,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import SessionExpiredModal from '../components/SessionExpiredModal';
 import VirtualAccountSuccessModal from '../components/VirtualAccountSuccessModal';
 import { useVirtualAccountInquiry } from '../hooks/use-virtual-account-inquiry';
 
@@ -15,7 +16,7 @@ export default function VirtualAccountScreen() {
     const [error, setError] = useState<string | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [virtualAccountData, setVirtualAccountData] = useState<any>(null);
-    const { inquiryVirtualAccount, loading, error: inquiryError, clearError } = useVirtualAccountInquiry();
+    const { inquiryVirtualAccount, loading, error: inquiryError, sessionExpired, clearError, clearSessionExpired } = useVirtualAccountInquiry();
 
     const handleInputChange = (val: string) => {
         // Only allow numbers, max 16 digits
@@ -34,7 +35,7 @@ export default function VirtualAccountScreen() {
         try {
             const response = await inquiryVirtualAccount(virtualAccountNumber);
 
-            if (response.status === 200) {
+            if (response && response.status === 200) {
                 // Show success modal with virtual account data
                 setVirtualAccountData(response.data.data.virtualAccountData);
                 setShowSuccessModal(true);
@@ -43,7 +44,7 @@ export default function VirtualAccountScreen() {
             }
         } catch (err: any) {
             // Error handled by hook
-            console.log(err.response.data)
+            console.log(err.response?.data)
             setError(inquiryError || t('virtual_account_error', 'Error validating virtual account'));
         }
     };
@@ -130,6 +131,12 @@ export default function VirtualAccountScreen() {
                         setShowSuccessModal={setShowSuccessModal}
                     />
                 )}
+
+                {/* Session Expired Modal */}
+                <SessionExpiredModal
+                    visible={sessionExpired}
+                    onClose={clearSessionExpired}
+                />
             </SafeAreaView>
         </GestureHandlerRootView>
     );

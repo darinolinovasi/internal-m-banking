@@ -5,12 +5,13 @@ import { useState } from 'react';
 export function useVirtualAccountInquiry() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [sessionExpired, setSessionExpired] = useState(false);
 
     const inquiryVirtualAccount = async (virtualAccountNumber: string) => {
         setLoading(true);
         setError(null);
         try {
-            const endpoint = '/va/inquiry';
+            const endpoint = '/transfer-va/inquiry-intrabank';
             // partner service id is first 5 digits of virtual account number with left padding space
             const partnerServiceId = virtualAccountNumber.slice(0, 5).padStart(8, ' ');
             // customer no is the virtual account number
@@ -21,6 +22,7 @@ export function useVirtualAccountInquiry() {
                 partnerServiceId: partnerServiceId,
                 customerNo: customerNo,
                 virtualAccountNo: VirtualAccountNo,
+                trxDateTime: new Date().toISOString(),
                 additionalInfo: {
                     deviceId: '12345679237',
                     channel: 'mobilephone',
@@ -36,8 +38,9 @@ export function useVirtualAccountInquiry() {
             return response;
         } catch (err: any) {
             const errorMessage = getVirtualAccountErrorMessage(err);
+            console.log("ERROR:")
+            console.log(err.response.data)
             setError(errorMessage);
-            throw err;
         } finally {
             setLoading(false);
         }
@@ -49,6 +52,12 @@ export function useVirtualAccountInquiry() {
         }
 
         const { status, data } = err.response;
+
+        // Handle session expired (401)
+        if (status === 401) {
+            setSessionExpired(true);
+            return 'Session expired';
+        }
 
         // Handle specific virtual account error cases
         if (status === 404) {
@@ -84,10 +93,16 @@ export function useVirtualAccountInquiry() {
         setError(null);
     };
 
+    const clearSessionExpired = () => {
+        setSessionExpired(false);
+    };
+
     return {
         inquiryVirtualAccount,
         loading,
         error,
-        clearError
+        sessionExpired,
+        clearError,
+        clearSessionExpired
     };
 }

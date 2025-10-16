@@ -136,7 +136,9 @@ export async function fetchTransfersWithTransactions({ limit = 7, offset = 0 } =
             };
         }
         return { transfers: [], total: 0, limit, offset };
-    } catch (error) {
+    } catch (error: any) {
+        console.log("ERROR:")
+        console.log(error.response.data)
         console.error('Failed to fetch transfers:', error);
         return { transfers: [], total: 0, limit, offset };
     }
@@ -163,8 +165,10 @@ export function useTransfersWithTransactions() {
             }
             setOffset(pageOffset + limit);
             setHasMore(result.transfers.length === limit);
-        } catch (err) {
-            setError(err);
+        } catch (err: any) {
+            console.log("ERROR:")
+            console.log(err.response.data)
+            setError(err?.response?.data?.error || err?.message || 'Transfer gagal');
         } finally {
             setLoading(false);
         }

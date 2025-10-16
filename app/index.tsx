@@ -1,4 +1,5 @@
 import BottomNavbar from '@/components/BottomNavbar';
+import SessionExpiredModal from '@/components/SessionExpiredModal';
 import { useAccount } from '@/hooks/use-account';
 import { useLogout } from '@/hooks/use-logout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,7 +20,7 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showBalance, setShowBalance] = useState(true); // Add state for balance visibility
   const [fadeAnim] = useState(new Animated.Value(0));
-  const { account, fetchAccountBalance, loading: accountLoading } = useAccount();
+  const { account, fetchAccountBalance, loading: accountLoading, sessionExpired, clearSessionExpired } = useAccount();
   const [user, setUser] = useState<any>({
     id: 0,
     email: '',
@@ -30,7 +31,7 @@ export default function HomeScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchAccountBalance('111231271284153');
+    await fetchAccountBalance('2000100101');
     setRefreshing(false);
   };
   // get user info from AsyncStorage and parse it to json
@@ -42,7 +43,7 @@ export default function HomeScreen() {
         setUser(user);
       }
     };
-    fetchAccountBalance('111231271284153'); // Replace with actual account number
+    fetchAccountBalance('2000100101'); // Replace with actual account number
 
     getUserInfo();
   }, []);
@@ -345,6 +346,12 @@ export default function HomeScreen() {
         </ScrollView>
         {/* Bottom Navbar */}
         <BottomNavbar />
+
+        {/* Session Expired Modal */}
+        <SessionExpiredModal
+          visible={sessionExpired}
+          onClose={clearSessionExpired}
+        />
       </GestureHandlerRootView>
     </SafeAreaView >
   );

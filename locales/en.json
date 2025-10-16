@@ -36,6 +36,7 @@
     "pin_wrong_title": "Wrong PIN",
     "pin_wrong_message": "The PIN you entered is incorrect. Please try again.",
     "close": "Close",
+    "signin": "Sign In",
     "saved_accounts": "Saved Accounts",
     "search_account_placeholder": "Search account...",
     "loading": "Loading...",

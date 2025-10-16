@@ -174,6 +174,7 @@ export default function ReceiptScreen() {
                                         <View style={styles.rowBetween}>
                                             <Text style={styles.detailLabel}>PAYMENT REQUEST ID</Text>
                                             <Text style={styles.detailValue}>{trxId}</Text>
+
                                         </View>
                                         <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
@@ -279,17 +280,22 @@ const styles = StyleSheet.create({
     rowBetween: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginBottom: 4,
     },
     detailLabel: {
         color: '#888',
         fontSize: 14,
+        flexShrink: 0,
+        marginRight: 8,
     },
     detailValue: {
         color: '#222',
         fontSize: 15,
         fontWeight: '500',
+        flex: 1,
+        textAlign: 'right',
+        flexWrap: 'wrap',
     },
     sourceName: {
         fontWeight: 'bold',

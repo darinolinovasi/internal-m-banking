@@ -107,7 +107,7 @@ export default function SavedAccountsScreen() {
                 note: noteToSend,
                 partnerReferenceNo: '20211130000000001',
                 customerReference: '10052023',
-                sourceAccountNo: '988901000187608',
+                sourceAccountNo: '2000200202',
                 transactionDate: "2021-11-24T10:30:24+07:00",
                 // The following are not used for interbank, but required for intrabank signature
                 originatorCustomerNo: '',
@@ -138,7 +138,7 @@ export default function SavedAccountsScreen() {
                 });
             }, 1000);
         } catch (err: any) {
-            setTransferResult({ success: false, message: transferError || err?.response?.data?.error?.responseMessage || 'Transfer gagal' });
+            setTransferResult({ success: false, message: 'Transfer gagal' });
             setShowErrorModal(true);
         } finally {
             setIsTransferring(false);

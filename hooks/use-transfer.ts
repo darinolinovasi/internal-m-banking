@@ -36,6 +36,7 @@ export function useTransfer() {
             const result = await rawTransferToAccount(params);
             return result;
         } catch (err: any) {
+            console.log(err.response.data)
             setError(err?.response?.data?.error || err?.message || 'Transfer gagal');
             throw err;
         } finally {
@@ -70,7 +71,7 @@ export async function rawTransferToAccount(params: TransferToAccountParams) {
         return `${year}-${month}-${day}T${hour}:${min}:${sec}+07:00`;
     }
 
-    if (account.bank.bank_code === '002') {
+    if (account.bank.bank_code === '002' || account.bank.bank_code === '008') {
         // Intrabank transfer
         const body = {
             partnerReferenceNo,

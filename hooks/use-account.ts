@@ -6,6 +6,7 @@ export function useAccount() {
     const [account, setAccount] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [sessionExpired, setSessionExpired] = useState(false);
 
     const fetchAccountBalance = async (accountNo: string) => {
         setLoading(true);
@@ -13,7 +14,8 @@ export function useAccount() {
         try {
             // Simulate API call
             const response = await api.post('/account/balance', {
-                accountNo
+                accountNo,
+                bankCardToken: "6d7963617264746f6b656e"
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,13 +27,22 @@ export function useAccount() {
             return response.data?.data;
 
         } catch (err: any) {
-            setError(err?.message || 'Failed to fetch account');
-            console.log("Error fetching account balance:", err.response?.data);
-            throw err;
+            // Check if it's a 401 error (session expired)
+            if (err?.response?.status === 401) {
+                setSessionExpired(true);
+                setError('Session expired');
+            } else {
+                setError(err?.message || 'Failed to fetch account');
+            }
+            return null;
         } finally {
             setLoading(false);
         }
     };
 
-    return { account, loading, error, fetchAccountBalance };
+    const clearSessionExpired = () => {
+        setSessionExpired(false);
+    };
+
+    return { account, loading, error, sessionExpired, clearSessionExpired, fetchAccountBalance };
 }

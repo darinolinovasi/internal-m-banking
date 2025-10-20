@@ -1,48 +1,49 @@
+import { useMutasiRekening } from '@/hooks/use-mutasi-rekening';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import VerifyPinModal from '../components/VerifyPinModal';
 
-const mutasiData = [
-    {
-        status: 'PEND',
-        date: '02',
-        month: 'Okt',
-        year: '2025',
-        title: 'Payment to Warung Ikan Bakar 2',
-        desc: 'Transaksi Kredit',
-        amount: 'IDR 5.000.000,00',
-        amountColor: '#D32F2F',
-        statusColor: '#222',
-    },
-    {
-        date: '02',
-        month: 'Okt',
-        year: '2025',
-        title: 'Payment to Warung Ikan Bakar 3',
-        desc: 'Transaksi Debit',
-        amount: 'IDR 5.000.000,00',
-        amountColor: '#D32F2F',
-    },
-    {
-        date: '02',
-        month: 'Okt',
-        year: '2025',
-        title: 'Payment to Warung Ikan Bakar 3',
-        desc: 'Trx Masuk',
-        amount: 'IDR 5.000.000,00',
-        amountColor: '#1976D2',
-    },
-];
+// Helper function to format transaction data for display
+const formatTransactionForDisplay = (transaction: any) => {
+    const date = moment(transaction.transactionDate);
+    const amount = parseFloat(transaction.amount.value);
+    const isCredit = transaction.type === 'Credit';
+
+    return {
+        date: date.format('DD'),
+        month: date.format('MMM'),
+        year: date.format('YYYY'),
+        title: transaction.remark,
+        desc: transaction.detailInfo?.remarkCustom || transaction.type,
+        amount: `IDR ${amount.toLocaleString('id-ID', { minimumFractionDigits: 2 })}`,
+        amountColor: isCredit ? '#1976D2' : '#D32F2F',
+        type: transaction.type,
+        transactionId: transaction.transactionId,
+    };
+};
 
 export default function MutasiRekeningScreen() {
     const { t } = useTranslation();
     const [showPicker, setShowPicker] = useState(false);
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
     const [endDate, setEndDate] = useState<Date | null | undefined>(undefined);
+    const [showPinModal, setShowPinModal] = useState(false);
+    const [pendingDateRange, setPendingDateRange] = useState<{ startDate?: Date; endDate?: Date } | null>(null);
+
+    // Use the mutasi rekening hook
+    const {
+        transactions,
+        summary,
+        loading,
+        error,
+        fetchByDateRange,
+        refetch
+    } = useMutasiRekening();
 
     let minDate, maxDate;
     if (startDate) {
@@ -90,8 +91,49 @@ export default function MutasiRekeningScreen() {
         setEndDate(null);
     };
 
+    // Handle date range selection and show PIN verification
+    const handleDateRangeSelect = () => {
+        if (startDate && endDate) {
+            setPendingDateRange({ startDate, endDate });
+        } else if (startDate) {
+            // If only start date is selected, use it as both start and end
+            setPendingDateRange({ startDate, endDate: startDate });
+        }
+        setShowPicker(false);
+        setShowPinModal(true);
+    };
+
+    // Handle PIN verification success
+    const handlePinVerificationSuccess = () => {
+        setShowPinModal(false);
+        if (pendingDateRange) {
+            if (pendingDateRange.endDate) {
+                fetchByDateRange(pendingDateRange.startDate, pendingDateRange.endDate);
+            } else {
+                fetchByDateRange(pendingDateRange.startDate, pendingDateRange.startDate);
+            }
+        }
+        setPendingDateRange(null);
+    };
+
+    // Handle PIN verification close/cancel
+    const handlePinVerificationClose = () => {
+        setShowPinModal(false);
+        setPendingDateRange(null);
+    };
+
+    // Error handling is now managed by the useMutasiRekening hook via ErrorContext
+    // No need for additional error display here as it would interfere with 401 redirects
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
+            {/* PIN Verification Modal */}
+            <VerifyPinModal
+                visible={showPinModal}
+                callback={handlePinVerificationSuccess}
+                onClose={handlePinVerificationClose}
+            />
+
             {/* Date Range Picker Modal */}
             <Modal
                 visible={showPicker}
@@ -117,7 +159,7 @@ export default function MutasiRekeningScreen() {
                             <TouchableOpacity onPress={() => setShowPicker(false)} style={{ marginRight: 16 }}>
                                 <Text style={{ color: '#D32F2F', fontWeight: 'bold' }}>{t('cancel')}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setShowPicker(false)}>
+                            <TouchableOpacity onPress={handleDateRangeSelect}>
                                 <Text style={{ color: '#1976D2', fontWeight: 'bold' }}>{t('choose')}</Text>
                             </TouchableOpacity>
                         </View>
@@ -145,26 +187,35 @@ export default function MutasiRekeningScreen() {
                 </View>
             </View>
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {mutasiData.map((item, idx) => (
-                    <View key={idx} style={styles.card}>
-                        {item.status ? (
-                            <View style={styles.statusCol}>
-                                <Text style={[styles.statusText, { color: item.statusColor || '#222' }]}>PEND</Text>
-                            </View>
-                        ) : (
-                            <View style={styles.dateCol}>
-                                <Text style={styles.dateDay}>{item.date}</Text>
-                                <Text style={styles.dateMonth}>{item.month}</Text>
-                                <Text style={styles.dateYear}>{item.year}</Text>
-                            </View>
-                        )}
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle}>{item.title}</Text>
-                            <Text style={styles.cardDesc}>{item.desc}</Text>
-                            <Text style={[styles.cardAmount, { color: item.amountColor }]}>{item.amount}</Text>
-                        </View>
+                {loading ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#1976D2" />
+                        <Text style={styles.loadingText}>{t('loading_transactions')}</Text>
                     </View>
-                ))}
+                ) : transactions.length > 0 ? (
+                    transactions.map((transaction, idx) => {
+                        const item = formatTransactionForDisplay(transaction);
+                        return (
+                            <View key={transaction.transactionId || idx} style={styles.card}>
+                                <View style={styles.dateCol}>
+                                    <Text style={styles.dateDay}>{item.date}</Text>
+                                    <Text style={styles.dateMonth}>{item.month}</Text>
+                                    <Text style={styles.dateYear}>{item.year}</Text>
+                                </View>
+                                <View style={styles.cardContent}>
+                                    <Text style={styles.cardTitle}>{item.title}</Text>
+                                    <Text style={styles.cardDesc}>{item.desc}</Text>
+                                    <Text style={[styles.cardAmount, { color: item.amountColor }]}>{item.amount}</Text>
+                                </View>
+                            </View>
+                        );
+                    })
+                ) : (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>No transactions found</Text>
+                        <Text style={styles.emptySubtext}>Select a date range to view transactions</Text>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -288,5 +339,34 @@ const styles = StyleSheet.create({
     cardAmount: {
         fontWeight: '700',
         fontSize: 15,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+    loadingText: {
+        marginTop: 12,
+        fontSize: 16,
+        color: '#666',
+        fontWeight: '500',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+    emptyText: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#666',
+        marginBottom: 8,
+    },
+    emptySubtext: {
+        fontSize: 14,
+        color: '#999',
+        textAlign: 'center',
     },
 });

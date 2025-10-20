@@ -1,8 +1,9 @@
+import { useError } from '@/contexts/ErrorContext';
 import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Rect } from 'react-native-svg';
 import VerifyPinModal from '../components/VerifyPinModal';
@@ -10,13 +11,12 @@ import { useSignIn } from '../hooks/use-signin';
 
 export default function SignInScreen() {
     const { t } = useTranslation();
+    const { showError } = useError();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const { signIn, loading, error } = useSignIn();
+    const { signIn, loading } = useSignIn();
     const [pinModalVisible, setPinModalVisible] = useState(false);
-    const [showErrorModal, setShowErrorModal] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
 
     const modalCallback = () => {
@@ -36,8 +36,7 @@ export default function SignInScreen() {
 
     const handleLogin = async () => {
         if (!email || !password) {
-            setErrorMessage(t('email_password_required'));
-            setShowErrorModal(true);
+            showError(t('email_password_required'), { title: t('login_failed') });
             return;
         }
         try {
@@ -48,25 +47,14 @@ export default function SignInScreen() {
                 router.replace('/create-pin');
             }
         } catch (err) {
-            setErrorMessage(error as string);
-            setShowErrorModal(true);
+            // Error handling is now done by the useSignIn hook via ErrorContext
+            console.log(err);
         }
     };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
             <VerifyPinModal visible={pinModalVisible} callback={modalCallback} />
-            <Modal visible={showErrorModal && !!errorMessage} transparent animationType="fade" onRequestClose={() => setShowErrorModal(false)}>
-                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', alignItems: 'center', justifyContent: 'center' }}>
-                    <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', justifyContent: 'center', minWidth: 200 }}>
-                        <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>{t('login_failed')}</Text>
-                        <Text style={{ color: '#222', fontSize: 16 }}>{errorMessage}</Text>
-                        <TouchableOpacity style={{ marginTop: 24 }} onPress={() => setShowErrorModal(false)}>
-                            <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>{t('close')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
             <View style={styles.container}>
                 <Text style={styles.title}>{t('signin')}</Text>
                 <View style={{ marginTop: 40, width: '100%' }}>

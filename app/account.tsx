@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Ellipse, G, Path } from 'react-native-svg';
 import ChangePasswordSheet from '../components/ChangePasswordSheet';
 import VerifyPinModal from '../components/VerifyPinModal';
 
@@ -49,7 +49,16 @@ export default function AccountScreen() {
                     <VerifyPinModal visible={showPinModal} callback={handleVerifySuccess} onClose={() => setShowPinModal(false)} />
                     {/* Profile Card */}
                     <View style={styles.profileCard}>
-                        <View style={styles.avatar} />
+                        <View style={styles.avatar}>
+                            <Svg
+                                id="Capa_1"
+                                viewBox="0 0 60.671 60.671" fill="#FFF">
+                                <G id="SVGRepo_bgCarrier" stroke-width="0"></G>
+                                <G id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></G>
+                                <G id="SVGRepo_iconCarrier"> <G> <G> <Ellipse cx="30.336" cy="12.097" rx="11.997" ry="12.097"></Ellipse>
+                                    <Path d="M35.64,30.079H25.031c-7.021,0-12.714,5.739-12.714,12.821v17.771h36.037V42.9 C48.354,35.818,42.661,30.079,35.64,30.079z"></Path> </G> </G> </G>
+                            </Svg>
+                        </View>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.profileName}>{user?.full_name}</Text>
                             <Text style={styles.profileEmail}>{user?.email}</Text>
@@ -120,6 +129,8 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         backgroundColor: '#D9D9D9',
         marginRight: 16,
+        padding: 8,
+        overflow: "hidden"
     },
     profileName: {
         fontWeight: 'bold',

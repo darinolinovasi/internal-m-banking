@@ -1,46 +1,48 @@
-import { useMutasiRekening } from '@/hooks/use-mutasi-rekening';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
-// Helper function to format transaction data for display
-const formatTransactionForDisplay = (transaction: any) => {
-    const date = moment(transaction.transactionDate);
-    const amount = parseFloat(transaction.amount.value);
-    const isCredit = transaction.type === 'Credit';
-
-    return {
-        date: date.format('DD'),
-        month: date.format('MMM'),
-        year: date.format('YYYY'),
-        title: transaction.remark,
-        desc: transaction.detailInfo?.remarkCustom || transaction.type,
-        amount: `IDR ${amount.toLocaleString('id-ID', { minimumFractionDigits: 2 })}`,
-        amountColor: isCredit ? '#1976D2' : '#D32F2F',
-        type: transaction.type,
-        transactionId: transaction.transactionId,
-    };
-};
+const mutasiData = [
+    {
+        status: 'PEND',
+        date: '02',
+        month: 'Okt',
+        year: '2025',
+        title: 'Payment to Warung Ikan Bakar 2',
+        desc: 'Transaksi Kredit',
+        amount: 'IDR 5.000.000,00',
+        amountColor: '#D32F2F',
+        statusColor: '#222',
+    },
+    {
+        date: '02',
+        month: 'Okt',
+        year: '2025',
+        title: 'Payment to Warung Ikan Bakar 3',
+        desc: 'Transaksi Debit',
+        amount: 'IDR 5.000.000,00',
+        amountColor: '#D32F2F',
+    },
+    {
+        date: '02',
+        month: 'Okt',
+        year: '2025',
+        title: 'Payment to Warung Ikan Bakar 3',
+        desc: 'Trx Masuk',
+        amount: 'IDR 5.000.000,00',
+        amountColor: '#1976D2',
+    },
+];
 
 export default function MutasiRekeningScreen() {
     const { t } = useTranslation();
     const [showPicker, setShowPicker] = useState(false);
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
     const [endDate, setEndDate] = useState<Date | null | undefined>(undefined);
-
-    // Use the mutasi rekening hook
-    const {
-        transactions,
-        summary,
-        loading,
-        error,
-        fetchByDateRange,
-        refetch
-    } = useMutasiRekening();
 
     let minDate, maxDate;
     if (startDate) {
@@ -88,24 +90,6 @@ export default function MutasiRekeningScreen() {
         setEndDate(null);
     };
 
-    // Handle date range selection and fetch data
-    const handleDateRangeSelect = () => {
-        if (startDate && endDate) {
-            fetchByDateRange(startDate, endDate);
-        } else if (startDate) {
-            // If only start date is selected, use it as both start and end
-            fetchByDateRange(startDate, startDate);
-        }
-        setShowPicker(false);
-    };
-
-    // Handle error display
-    useEffect(() => {
-        if (error) {
-            Alert.alert('Error', error);
-        }
-    }, [error]);
-
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
             {/* Date Range Picker Modal */}
@@ -133,7 +117,7 @@ export default function MutasiRekeningScreen() {
                             <TouchableOpacity onPress={() => setShowPicker(false)} style={{ marginRight: 16 }}>
                                 <Text style={{ color: '#D32F2F', fontWeight: 'bold' }}>{t('cancel')}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={handleDateRangeSelect}>
+                            <TouchableOpacity onPress={() => setShowPicker(false)}>
                                 <Text style={{ color: '#1976D2', fontWeight: 'bold' }}>{t('choose')}</Text>
                             </TouchableOpacity>
                         </View>
@@ -161,35 +145,26 @@ export default function MutasiRekeningScreen() {
                 </View>
             </View>
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {loading ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#1976D2" />
-                        <Text style={styles.loadingText}>{t('loading_transactions')}</Text>
-                    </View>
-                ) : transactions.length > 0 ? (
-                    transactions.map((transaction, idx) => {
-                        const item = formatTransactionForDisplay(transaction);
-                        return (
-                            <View key={transaction.transactionId || idx} style={styles.card}>
-                                <View style={styles.dateCol}>
-                                    <Text style={styles.dateDay}>{item.date}</Text>
-                                    <Text style={styles.dateMonth}>{item.month}</Text>
-                                    <Text style={styles.dateYear}>{item.year}</Text>
-                                </View>
-                                <View style={styles.cardContent}>
-                                    <Text style={styles.cardTitle}>{item.title}</Text>
-                                    <Text style={styles.cardDesc}>{item.desc}</Text>
-                                    <Text style={[styles.cardAmount, { color: item.amountColor }]}>{item.amount}</Text>
-                                </View>
+                {mutasiData.map((item, idx) => (
+                    <View key={idx} style={styles.card}>
+                        {item.status ? (
+                            <View style={styles.statusCol}>
+                                <Text style={[styles.statusText, { color: item.statusColor || '#222' }]}>PEND</Text>
                             </View>
-                        );
-                    })
-                ) : (
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>No transactions found</Text>
-                        <Text style={styles.emptySubtext}>Select a date range to view transactions</Text>
+                        ) : (
+                            <View style={styles.dateCol}>
+                                <Text style={styles.dateDay}>{item.date}</Text>
+                                <Text style={styles.dateMonth}>{item.month}</Text>
+                                <Text style={styles.dateYear}>{item.year}</Text>
+                            </View>
+                        )}
+                        <View style={styles.cardContent}>
+                            <Text style={styles.cardTitle}>{item.title}</Text>
+                            <Text style={styles.cardDesc}>{item.desc}</Text>
+                            <Text style={[styles.cardAmount, { color: item.amountColor }]}>{item.amount}</Text>
+                        </View>
                     </View>
-                )}
+                ))}
             </ScrollView>
         </SafeAreaView>
     );
@@ -313,34 +288,5 @@ const styles = StyleSheet.create({
     cardAmount: {
         fontWeight: '700',
         fontSize: 15,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 40,
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-        fontWeight: '500',
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 40,
-    },
-    emptyText: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#666',
-        marginBottom: 8,
-    },
-    emptySubtext: {
-        fontSize: 14,
-        color: '#999',
-        textAlign: 'center',
     },
 });

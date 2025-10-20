@@ -5,6 +5,7 @@ import { validateEmail, validatePasswordStrength } from '@/utils/inputValidation
 import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function useSignIn() {
     const [loading, setLoading] = useState(false);
@@ -12,7 +13,8 @@ export function useSignIn() {
     const [data, setData] = useState<any>(null);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const { t } = useTranslation();
+    const handleError = createErrorHandler(showError, router, t);
 
     const signIn = async (email: string, password: string) => {
         setLoading(true);
@@ -34,8 +36,10 @@ export function useSignIn() {
         }
 
         try {
+            console.log(api.getUri())
             const response = await api.post('/auth/login', { email, password });
             setData(response.data);
+            // log full api url
 
             // Save JWT securely
             if (response.data?.data?.jwt) {

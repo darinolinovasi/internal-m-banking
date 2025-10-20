@@ -4,6 +4,7 @@ import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface VirtualAccountTransferParams {
     virtualAccountData: {
@@ -37,7 +38,8 @@ export function useVirtualAccountTransfer() {
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const { t } = useTranslation();
+    const handleError = createErrorHandler(showError, router, t);
 
     const transferToVirtualAccount = async (params: VirtualAccountTransferParams) => {
         setLoading(true);

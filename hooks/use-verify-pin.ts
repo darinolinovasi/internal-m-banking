@@ -4,13 +4,15 @@ import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function useVerifyPin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const { t } = useTranslation();
+    const handleError = createErrorHandler(showError, router, t);
 
     const verifyPin = async (pin: string) => {
         setLoading(true);
@@ -24,6 +26,7 @@ export function useVerifyPin() {
             );
             return response;
         } catch (err: any) {
+            console.log(err);
             const errorMessage = err.response?.data?.message || 'PIN yang Anda masukkan salah.';
             setError(errorMessage);
 

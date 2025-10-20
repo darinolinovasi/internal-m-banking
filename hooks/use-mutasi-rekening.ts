@@ -97,7 +97,13 @@ export function useMutasiRekening() {
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const handleError = useCallback(
+        (error: any, customOptions?: any) => {
+            const errorHandler = createErrorHandler(showError, router, t);
+            return errorHandler(error, customOptions);
+        },
+        [showError, router, t]
+    );
 
     const fetchMutasi = useCallback(async (filters?: MutasiFilters) => {
         setLoading(true);
@@ -112,18 +118,22 @@ export function useMutasiRekening() {
             setResponseMessage(result.responseMessage);
         } catch (err: any) {
             console.error('Failed to fetch mutasi:', err);
-            const errorMessage = err?.response?.data?.error || err?.message || t('failed_fetch_mutasi');
-            setError(errorMessage);
 
-            // Show error modal with retry option
+            // Handle 401 errors via the error handler first (will redirect to signin)
             handleError(err, {
                 title: t('failed_fetch_mutasi'),
-                showRetry: true
+                showRetry: err?.response?.status !== 401 // Don't show retry for 401 errors
             });
+
+            // Only set local error state for non-401 errors to avoid mapping issues
+            if (err?.response?.status !== 401) {
+                const errorMessage = err?.response?.data?.error || err?.message || t('failed_fetch_mutasi');
+                setError(errorMessage);
+            }
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [handleError, t]);
 
     const fetchByDateRange = useCallback((fromDateTime?: Date, toDateTime?: Date) => {
         fetchMutasi({ fromDateTime, toDateTime });
@@ -258,11 +268,12 @@ export async function fetchMutasiTransactionDetail(transactionId: string) {
 }
 
 export function useMutasiTransactionDetail() {
+    const { t } = useTranslation();
     const [transaction, setTransaction] = useState<MutasiTransaction | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
-    const handleError = createErrorHandler(showError);
+    const handleError = createErrorHandler(showError, undefined, t);
 
     const fetchDetail = useCallback(async (transactionId: string) => {
         setLoading(true);

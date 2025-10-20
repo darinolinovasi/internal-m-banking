@@ -1,11 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PinInput from '../components/PinInput';
 import PinKeypad from '../components/PinKeypad';
-import { useVerifyPin } from '../hooks/use-verify-pin';
+import { useEnhancedPinVerification } from '../hooks/useEnhancedPinVerification';
 
 interface VerifyPinModalProps {
     visible: boolean;
@@ -20,12 +18,15 @@ export default function VerifyPinModal({
 }: VerifyPinModalProps) {
     const { t } = useTranslation();
     const [pin, setPin] = useState('');
-    const [sessionExpired, setSessionExpired] = useState(false);
-    const [error, setError] = useState('');
-    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [sessionExpired, _] = useState(false);
 
-    const router = useRouter();
-    const { verifyPin, loading } = useVerifyPin();
+    // Always call hooks at the top level to prevent "invalid hook call" errors
+    const {
+        verifyPin,
+        isVerifying: loading,
+        showInvalidPinModal,
+        closeInvalidPinModal
+    } = useEnhancedPinVerification();
 
     const handleKeypad = (val: string) => {
         if (pin.length < 6) setPin(pin + val);
@@ -36,37 +37,18 @@ export default function VerifyPinModal({
 
     useEffect(() => {
         const doVerify = async () => {
-            try {
-                const response = await verifyPin(pin);
-                if (response.status === 200) {
-                    setPin('');
-                    callback && callback();
-                }
-            } catch (err: any) {
-                if (err?.response?.status === 401 && err.response?.data?.error !== 'Invalid PIN') {
-                    setPin('');
-                    setSessionExpired(true);
-                    setTimeout(async () => {
-                        await AsyncStorage.removeItem('jwt');
-                        setSessionExpired(false);
-                        router.replace('/signin');
-                    }, 1500);
-                    return;
-                }
-
-                if (err?.response?.status === 401 && err.response?.data?.error === 'Invalid PIN') {
-                    setError(t('pin_wrong_message'));
-                    setShowErrorModal(true);
-                    setPin('');
-                    return;
-                }
+            const success = await verifyPin(pin);
+            if (success) {
+                setPin('');
+                callback && callback();
+            } else {
                 setPin('');
             }
         };
         if (pin.length === 6) {
             doVerify();
         }
-    }, [pin]);
+    }, [pin, verifyPin, callback]);
 
     return (
         <>
@@ -80,7 +62,6 @@ export default function VerifyPinModal({
                 <View style={styles.container}>
                     <View></View>
                     <View style={{ alignItems: 'center', width: '100%' }}>
-
                         <Text style={styles.title}>{t('verify_pin_title')}</Text>
                         <Text style={styles.subtitle}>{t('verify_pin_subtitle')}</Text>
                         <PinInput value={pin} />
@@ -111,17 +92,24 @@ export default function VerifyPinModal({
                         </View>
                     </Modal>
                     <Modal
-                        visible={showErrorModal}
+                        visible={showInvalidPinModal}
                         transparent
                         animationType="fade"
-                        onRequestClose={() => setShowErrorModal(false)}
+                        onRequestClose={closeInvalidPinModal}
                     >
                         <View style={styles.modalOverlay}>
                             <View style={styles.modalContent}>
-                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>{t('pin_wrong_title')}</Text>
-                                <Text style={{ color: '#222', fontSize: 16 }}>{t('pin_wrong_message')}</Text>
-                                <TouchableOpacity style={{ marginTop: 24 }} onPress={() => setShowErrorModal(false)}>
-                                    <Text style={{ color: '#178AFF', fontWeight: 'bold', fontSize: 16 }}>{t('close')}</Text>
+                                <Text style={{ fontSize: 18, color: '#C81C4D', fontWeight: 'bold', marginBottom: 8 }}>
+                                    {t('pin_wrong_title')}
+                                </Text>
+                                <Text style={{ color: '#222', fontSize: 16, textAlign: 'center', marginBottom: 16 }}>
+                                    {t('pin_wrong_message')}
+                                </Text>
+                                <TouchableOpacity
+                                    style={styles.closeButton}
+                                    onPress={closeInvalidPinModal}
+                                >
+                                    <Text style={styles.closeButtonText}>{t('close')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -182,5 +170,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         minWidth: 200,
         maxWidth: '80%'
+    },
+    closeButton: {
+        backgroundColor: '#F5F5F5',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+    },
+    closeButtonText: {
+        color: '#666666',
+        fontSize: 16,
+        fontWeight: '500',
     },
 });

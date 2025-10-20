@@ -37,7 +37,7 @@ export function useTransfer() {
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const handleError = createErrorHandler(showError, router, t);
 
     const transferToAccount = async (params: TransferToAccountParams) => {
         setLoading(true);
@@ -201,7 +201,7 @@ export function useTransfersWithTransactions() {
     const limit = 20;
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const handleError = createErrorHandler(showError, router, t);
 
     const fetchTransfers = useCallback(async (reset = false) => {
         setLoading(true);

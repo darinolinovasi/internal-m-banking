@@ -4,6 +4,7 @@ import { createErrorHandler } from '@/utils/errorHandler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function useVirtualAccountInquiry() {
     const [loading, setLoading] = useState(false);
@@ -11,7 +12,8 @@ export function useVirtualAccountInquiry() {
     const [sessionExpired, setSessionExpired] = useState(false);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const { t } = useTranslation();
+    const handleError = createErrorHandler(showError, router, t);
 
     const inquiryVirtualAccount = async (virtualAccountNumber: string) => {
         setLoading(true);

@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
-import { useTranslation } from 'react-i18next';
 import { SecureStorage } from './secureStorage';
+
+type TFunction = (key: string, options?: any) => string;
 
 /**
  * Helper function to extract error message from API response
@@ -132,13 +133,24 @@ export interface ProcessedError {
  * Processes API errors and returns user-friendly error messages
  * Simplified version: only checks HTTP status codes
  */
-export function processApiError(error: any): ProcessedError {
-    const { t } = useTranslation();
+export function processApiError(error: any, t?: TFunction): ProcessedError {
+    // Helper function to handle translation with fallback
+    const translate = (key: string, fallback?: string) => {
+        if (t) {
+            try {
+                return t(key, { defaultValue: fallback });
+            } catch {
+                return fallback || key;
+            }
+        }
+        return fallback || key;
+    };
+
     // Network error (no response)
     if (!error.response) {
         return {
-            message: t('network_error_message', 'Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.'),
-            title: t('network_error_title', 'Koneksi Gagal'),
+            message: translate('network_error_message', 'Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.'),
+            title: translate('network_error_title', 'Koneksi Gagal'),
             showRetry: true,
             isNetworkError: true,
         };
@@ -151,8 +163,8 @@ export function processApiError(error: any): ProcessedError {
     // Success (200) - should not reach here as error, but handle just in case
     if (status === 200) {
         return {
-            message: t('transaction_success', 'Transaksi berhasil dilakukan.'),
-            title: t('success'),
+            message: translate('transaction_success', 'Transaksi berhasil dilakukan.'),
+            title: translate('success', 'Berhasil'),
             showRetry: false,
         };
     }
@@ -162,8 +174,8 @@ export function processApiError(error: any): ProcessedError {
         console.log('🚨 401 Error detected:', { data, status });
 
         // Check if it's invalid PIN error
-        let errorMessage = t('session_expired_message');
-        let title = t('session_expired_title');
+        let errorMessage = translate('session_expired_message', 'Sesi telah berakhir. Silakan login kembali.');
+        let title = translate('session_expired_title', 'Sesi Berakhir');
         let isSessionExpired = true;
         let shouldRedirectToSignin = true;
 
@@ -174,15 +186,15 @@ export function processApiError(error: any): ProcessedError {
 
             if (extractedMessage && extractedMessage.toLowerCase().includes('invalid pin')) {
                 console.log('📌 Invalid PIN detected - NOT redirecting');
-                errorMessage = t('pin_wrong_message');
-                title = t('pin_wrong_title');
+                errorMessage = translate('pin_wrong_message', 'PIN yang dimasukkan salah. Silakan coba lagi.');
+                title = translate('pin_wrong_title', 'PIN Salah');
                 isSessionExpired = false;
                 shouldRedirectToSignin = false;
             }
         } else if (data?.message && data.message.toLowerCase().includes('invalid pin')) {
             console.log('📌 Invalid PIN detected in message - NOT redirecting');
-            errorMessage = t('pin_wrong_message');
-            title = t('pin_wrong_title');
+            errorMessage = translate('pin_wrong_message', 'PIN yang dimasukkan salah. Silakan coba lagi.');
+            title = translate('pin_wrong_title', 'PIN Salah');
             isSessionExpired = false;
             shouldRedirectToSignin = false;
         }
@@ -231,15 +243,19 @@ export function processApiError(error: any): ProcessedError {
 /**
  * Hook for handling API errors with automatic error modal display and navigation
  */
-export function createErrorHandler(showError: (message: string, options?: any) => void, router?: any) {
+export function createErrorHandler(
+    showError: (message: string, options?: any) => void,
+    router?: any,
+    t?: TFunction
+) {
     return (error: any, customOptions?: Partial<ProcessedError>) => {
         console.log('🔥 createErrorHandler called with:', {
             hasRouter: !!router,
             errorStatus: error?.response?.status,
             customOptions
-        });
+        })
 
-        const processedError = processApiError(error);
+        const processedError = processApiError(error, t);
         const options = { ...processedError, ...customOptions };
 
         console.log('📋 Processed options:', options);

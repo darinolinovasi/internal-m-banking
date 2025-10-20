@@ -121,5 +121,17 @@
     "password": "Katasandi",
     "enter_password": "Masukan Katasandi",
     "forgot_password": "Lupa Katasandi?",
-    "reset": "Atur Ulang"
+    "reset": "Atur Ulang",
+    "pin_incorrect_title": "PIN Salah",
+    "pin_incorrect_message": "PIN yang Anda masukkan salah. Silakan coba lagi.",
+    "pin_locked_title": "Akun Terkunci",
+    "pin_locked_message": "Akun Anda telah terkunci karena beberapa kali memasukkan PIN yang salah. Silakan coba lagi dalam {time} menit.",
+    "remaining_attempts": "Percobaan tersisa: {count}",
+    "account_locked_for": "Akun terkunci selama {time} menit",
+    "try_again": "Coba Lagi",
+    "forgot_pin": "Lupa PIN?",
+    "forgot_pin_title": "Lupa PIN",
+    "forgot_pin_message": "Jika Anda lupa PIN, silakan hubungi layanan pelanggan kami untuk bantuan.",
+    "contact_support": "Hubungi Dukungan",
+    "close": "Tutup"
 }

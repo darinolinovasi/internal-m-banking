@@ -6,13 +6,15 @@ import { validateAccountNumber } from '@/utils/inputValidation';
 import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function useInquiry() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { showError } = useError();
     const router = useRouter();
-    const handleError = createErrorHandler(showError, router);
+    const { t } = useTranslation();
+    const handleError = createErrorHandler(showError, router, t);
 
     const inquiry = async (bank: { bank_code: string }, accountNumber: string) => {
         setLoading(true);

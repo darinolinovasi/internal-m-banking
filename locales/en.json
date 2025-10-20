@@ -121,5 +121,17 @@
     "password": "Password",
     "enter_password": "Enter Password",
     "forgot_password": "Forgot Password?",
-    "reset": "Reset"
+    "reset": "Reset",
+    "pin_incorrect_title": "Invalid PIN",
+    "pin_incorrect_message": "The PIN you entered is incorrect. Please try again.",
+    "pin_locked_title": "Account Locked",
+    "pin_locked_message": "Your account has been locked due to multiple incorrect PIN attempts. Please try again in {time} minutes.",
+    "remaining_attempts": "Remaining attempts: {count}",
+    "account_locked_for": "Account locked for {time} minutes",
+    "try_again": "Try Again",
+    "forgot_pin": "Forgot PIN?",
+    "forgot_pin_title": "Forgot PIN",
+    "forgot_pin_message": "If you have forgotten your PIN, please contact our customer service for assistance.",
+    "contact_support": "Contact Support",
+    "close": "Close"
 }

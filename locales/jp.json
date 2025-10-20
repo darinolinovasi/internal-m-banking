@@ -120,5 +120,17 @@
     "password": "パスワード",
     "enter_password": "パスワードを入力",
     "forgot_password": "パスワードを忘れましたか？",
-    "reset": "リセット"
+    "reset": "リセット",
+    "pin_incorrect_title": "無効なPIN",
+    "pin_incorrect_message": "入力されたPINが正しくありません。もう一度お試しください。",
+    "pin_locked_title": "アカウントロック",
+    "pin_locked_message": "複数回の間違ったPIN入力により、アカウントがロックされました。{time}分後に再試行してください。",
+    "remaining_attempts": "残り試行回数: {count}",
+    "account_locked_for": "アカウントが{time}分間ロックされています",
+    "try_again": "再試行",
+    "forgot_pin": "PINを忘れましたか？",
+    "forgot_pin_title": "PINを忘れた場合",
+    "forgot_pin_message": "PINを忘れた場合は、カスタマーサービスにお問い合わせください。",
+    "contact_support": "サポートに連絡",
+    "close": "閉じる"
 }

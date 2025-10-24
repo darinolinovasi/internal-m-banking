@@ -35,7 +35,7 @@ export default function VirtualAccountSuccessModal({
     virtualAccountData,
     onClose,
     onContinue,
-    transferAmount = virtualAccountData.totalAmount.value,
+    transferAmount = virtualAccountData?.totalAmount?.value || '0',
     transferNote = '',
     setShowSuccessModal
 }: VirtualAccountSuccessModalProps) {
@@ -78,7 +78,7 @@ export default function VirtualAccountSuccessModal({
                 internalData: {
                     recipientAccountID: null, // Virtual account doesn't have a specific account ID
                     recipientAccountType: "virtual_account",
-                    recipientName: virtualAccountData.virtualAccountName,
+                    recipientName: virtualAccountData?.virtualAccountName || '',
                     bankID: 313,
                     TransferType: "manual",
                     TransactionType: "transfer_out"
@@ -88,15 +88,12 @@ export default function VirtualAccountSuccessModal({
             const response = await transferToVirtualAccount(transferParams);
 
             if (response.status === 200) {
+                console.log(response.data)
                 // Transfer successful, navigate to receipt screen with transfer response data
                 router.push({
                     pathname: '/receipt',
                     params: {
-                        account: JSON.stringify(virtualAccountData),
-                        amount: transferAmount,
-                        note: transferNote,
-                        transferResponse: JSON.stringify(response.data),
-                        result: 'success'
+                        referenceNo: response.data.data.virtualAccountData.referenceNo,
                     }
                 });
             }
@@ -112,6 +109,11 @@ export default function VirtualAccountSuccessModal({
         setIsPinVerifying(false);
         // User cancelled PIN verification, inquiry modal will remain visible
     };
+
+    // Don't render if virtualAccountData is not available
+    if (!virtualAccountData) {
+        return null;
+    }
 
     return (
         <>
@@ -143,32 +145,35 @@ export default function VirtualAccountSuccessModal({
                         <View style={styles.infoContainer}>
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>{t('virtual_account_name', 'Virtual Account Name')}</Text>
-                                <Text style={styles.infoValue}>{virtualAccountData.virtualAccountName}</Text>
+                                <Text style={styles.infoValue}>{virtualAccountData?.virtualAccountName || '-'}</Text>
                             </View>
 
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>{t('virtual_account_number', 'Virtual Account Number')}</Text>
-                                <Text style={styles.infoValue}>{virtualAccountData.virtualAccountNo.trim()}</Text>
+                                <Text style={styles.infoValue}>{virtualAccountData?.virtualAccountNo?.trim() || '-'}</Text>
                             </View>
 
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>{t('total_amount', 'Total Amount')}</Text>
                                 <Text style={styles.infoValue}>
-                                    {formatAmount(virtualAccountData.totalAmount.value, virtualAccountData.totalAmount.currency)}
+                                    {virtualAccountData?.totalAmount ?
+                                        formatAmount(virtualAccountData.totalAmount.value, virtualAccountData.totalAmount.currency) :
+                                        '-'
+                                    }
                                 </Text>
                             </View>
 
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>{t('partner_service_id', 'Partner Service ID')}</Text>
-                                <Text style={styles.infoValue}>{virtualAccountData.partnerServiceId.trim()}</Text>
+                                <Text style={styles.infoValue}>{virtualAccountData?.partnerServiceId?.trim() || '-'}</Text>
                             </View>
 
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>{t('customer_number', 'Customer Number')}</Text>
-                                <Text style={styles.infoValue}>{virtualAccountData.customerNo}</Text>
+                                <Text style={styles.infoValue}>{virtualAccountData?.customerNo || '-'}</Text>
                             </View>
 
-                            {virtualAccountData.additionalInfo.description && (
+                            {virtualAccountData?.additionalInfo?.description && (
                                 <View style={styles.infoRow}>
                                     <Text style={styles.infoLabel}>{t('description', 'Description')}</Text>
                                     <Text style={styles.infoValue}>{virtualAccountData.additionalInfo.description}</Text>

@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import SessionExpiredModal from '../components/SessionExpiredModal';
+import VirtualAccountAmountInputModal from '../components/VirtualAccountAmountInputModal';
 import VirtualAccountSuccessModal from '../components/VirtualAccountSuccessModal';
 import { useVirtualAccountInquiry } from '../hooks/use-virtual-account-inquiry';
 
@@ -14,7 +15,9 @@ export default function VirtualAccountScreen() {
     const { t } = useTranslation();
     const [virtualAccountNumber, setVirtualAccountNumber] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [amount, setAmount] = useState<string>("");
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showAmountInputModal, setShowAmountInputModal] = useState(false);
     const [virtualAccountData, setVirtualAccountData] = useState<any>(null);
     const { inquiryVirtualAccount, loading, error: inquiryError, sessionExpired, clearError, clearSessionExpired } = useVirtualAccountInquiry();
 
@@ -36,9 +39,17 @@ export default function VirtualAccountScreen() {
             const response = await inquiryVirtualAccount(virtualAccountNumber);
 
             if (response && response.status === 200) {
-                // Show success modal with virtual account data
-                setVirtualAccountData(response.data.data.virtualAccountData);
-                setShowSuccessModal(true);
+                const vaData = response.data.data.virtualAccountData;
+                setVirtualAccountData(vaData);
+
+                // Check if paidAmount.value is empty or null
+                if (!vaData?.paidAmount?.value || vaData.paidAmount.value === '' || vaData.paidAmount.value === null) {
+                    // Show amount input modal
+                    setShowAmountInputModal(true);
+                } else {
+                    // Show success modal with virtual account data
+                    setShowSuccessModal(true);
+                }
             } else {
                 setError(t('virtual_account_not_found', 'Virtual account number not found'));
             }
@@ -52,6 +63,27 @@ export default function VirtualAccountScreen() {
     const handleModalClose = () => {
         setShowSuccessModal(false);
         setVirtualAccountData(null);
+    };
+
+    const handleAmountInputClose = () => {
+        setShowAmountInputModal(false);
+        setVirtualAccountData(null);
+    };
+
+    const handleAmountConfirm = (amount: string) => {
+        // Update virtual account data with the entered amount
+        if (virtualAccountData) {
+            const updatedData = {
+                ...virtualAccountData,
+                totalAmount: {
+                    value: amount,
+                    currency: 'IDR'
+                }
+            };
+            setVirtualAccountData(updatedData);
+        }
+        setShowAmountInputModal(false);
+        setShowSuccessModal(true);
     };
 
     const handleContinueTransfer = () => {
@@ -120,6 +152,16 @@ export default function VirtualAccountScreen() {
                         </View>
                     </View>
                 </View>
+
+                {/* Virtual Account Amount Input Modal */}
+                {virtualAccountData && (
+                    <VirtualAccountAmountInputModal
+                        visible={showAmountInputModal}
+                        virtualAccountData={virtualAccountData}
+                        onClose={handleAmountInputClose}
+                        onConfirm={handleAmountConfirm}
+                    />
+                )}
 
                 {/* Virtual Account Success Modal */}
                 {virtualAccountData && (

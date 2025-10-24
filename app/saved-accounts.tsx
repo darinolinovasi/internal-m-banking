@@ -127,13 +127,9 @@ export default function SavedAccountsScreen() {
             setTimeout(() => {
                 setShowSuccessModal(false);
                 router.replace({
-                    pathname: '/receipt', params: {
-                        account: JSON.stringify(viewAccount),
-                        data: JSON.stringify(response?.data.data),
-                        amount: cleanAmount,
-                        note: tempNote,
-                        result: 'success',
-                        transferResponse: JSON.stringify(response?.data.data),
+                    pathname: '/receipt',
+                    params: {
+                        referenceNo: response?.data?.data?.referenceNo || response?.data?.data?.partnerReferenceNo
                     }
                 });
             }, 1000);

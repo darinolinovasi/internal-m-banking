@@ -1,74 +1,25 @@
+import { useTransferByReference } from '@/hooks/use-transfer-by-reference';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
-import { BackHandler, PixelRatio, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
 export default function ReceiptScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    let account, amount, note, result, referenceNo, trxId, transferResponse, data;
-    try {
-        account = params.account ? JSON.parse(params.account as string) : {};
-    } catch {
-        account = {};
-    }
-    amount = params.amount || '';
-    note = params.note || '';
-    result = params.result || 'success';
-    data = params.data ? JSON.parse(params.data as string) : null;
-    // Accept transfer response as JSON string param if available
-    try {
-        transferResponse = params.transferResponse ? JSON.parse(params.transferResponse as string) : null;
-    } catch {
-        transferResponse = null;
-    }
+    const { getTransferByReference, transferData, loading, error } = useTransferByReference();
 
-    // Check if this is a virtual account transfer
-    const isVirtualAccountTransfer = transferResponse?.data?.virtualAccountData || account?.virtualAccountNo;
+    // Get referenceNo from URL params
+    const referenceNo = params.referenceNo as string;
 
-    // Prefer transfer response data if available
-    if (isVirtualAccountTransfer && transferResponse?.data?.virtualAccountData) {
-        // Virtual Account Transfer Response Data
-        const vaData = transferResponse.data.virtualAccountData;
-        referenceNo = vaData.partnerReferenceNo || '-';
-        trxId = vaData.paymentRequestId || '-';
-        const provider = 'Virtual Account Transfer';
-        const vaNumber = vaData.virtualAccountNo?.trim() || '-';
-        const name = vaData.virtualAccountName || '-';
-        const bankMasked = transferResponse?.bankMasked || 'Virtual Account';
-        const fee = 'Gratis';
-        const total = vaData.paidAmount?.value || amount;
-        const transactionDate = vaData.trxDateTime;
-    } else {
-        // Regular Transfer Response Data
-        referenceNo = data?.referenceNo || params.referenceNo || account.referenceNo || '-';
-        trxId = data?.partnerReferenceNo || params.partnerReferenceNo || account.partnerReferenceNo || '-';
-        const provider = transferResponse?.provider || account.provider || account.bank?.bank_name || '-';
-        const vaNumber = transferResponse?.account_number || account.account_number || '-';
-        const name = transferResponse?.account_holder_name || account.account_holder_name || '-';
-        const bankMasked = transferResponse?.bankMasked || (account.bank?.bank_name ? `${account.bank.bank_name} - ••••••••${(data?.sourceAccountNo || '').slice(-4)}` : '-');
-        const fee = transferResponse?.fee || 'Gratis';
-        const total = amount;
-    }
+    // State for user info
+    const [user, setUser] = useState<any>(null);
+    const hasFetchedData = useRef(false);
 
-    // Extract data for display (reassign for compatibility)
-    const vaData = isVirtualAccountTransfer && transferResponse?.data?.virtualAccountData ? transferResponse.data.virtualAccountData : null;
-    referenceNo = vaData?.partnerReferenceNo || data?.referenceNo || params.referenceNo || account.referenceNo || '-';
-    trxId = vaData?.paymentRequestId || data?.partnerReferenceNo || params.partnerReferenceNo || account.partnerReferenceNo || '-';
-    const provider = isVirtualAccountTransfer ? 'Virtual Account Transfer' : (transferResponse?.provider || account.provider || account.bank?.bank_name || '-');
-    const vaNumber = vaData?.virtualAccountNo?.trim() || transferResponse?.account_number || account.account_number || '-';
-    const name = vaData?.virtualAccountName || transferResponse?.account_holder_name || account.account_holder_name || '-';
-    const bankMasked = transferResponse?.bankMasked || (account.bank?.bank_name ? `${account.bank.bank_name} - ••••••••${(data?.sourceAccountNo || '').slice(-4)}` : '-');
-    const fee = transferResponse?.fee || 'Gratis';
-    const total = vaData?.paidAmount?.value || amount;
-    const targetPixelCount = 1080; // Target width in pixels for the receipt image
-    const pixelRatio = PixelRatio.get();
-    const pixels = targetPixelCount / pixelRatio;
-    const [user, setUser] = React.useState<any>(null);
-
-    React.useEffect(() => {
+    // Fetch user info
+    useEffect(() => {
         const getUserInfo = async () => {
             const userInfo = await AsyncStorage.getItem('user');
             if (userInfo) {
@@ -79,6 +30,18 @@ export default function ReceiptScreen() {
 
         getUserInfo();
     }, []);
+
+    // Fetch transfer data by reference number - only once on first render
+    useEffect(() => {
+        const fetchTransferData = async () => {
+            if (referenceNo && !hasFetchedData.current) {
+                hasFetchedData.current = true;
+                await getTransferByReference(referenceNo);
+            }
+        };
+
+        fetchTransferData();
+    }, []); // Empty dependency array - fetch only once on mount
 
     // Handle back navigation - navigate to home screen
     useEffect(() => {
@@ -95,6 +58,91 @@ export default function ReceiptScreen() {
             backHandler.remove();
         };
     }, [router]);
+
+    console.log("ASDADSA : ", transferData)
+
+    // Format date to dd-MM-yyyy HH:MM format
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '-';
+        try {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+
+            return `${day}-${month}-${year} ${hours}:${minutes}`;
+        } catch (error) {
+            return dateString; // Return original if formatting failsG
+        }
+    };
+
+    // Extract data for display from API response
+    const amount = transferData?.amount || '0';
+    const note = transferData?.remark || '';
+    const result = transferData?.status || 'success';
+    const trxId = transferData?.external_ref || '-';
+    const provider = transferData?.bank?.bank_name || 'Transfer';
+    const vaNumber = transferData?.recipient_account_number || '-';
+    const name = transferData?.recipient_name || '-';
+    const accountNo = "2000100101"
+    const bankMasked = `••••••••${accountNo.slice(-4)}`;
+    const fee = transferData?.admin_fee == 0 ? 'Gratis' : transferData?.admin_fee;
+    const total = amount;
+
+    // Show loading state
+    if (loading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, backgroundColor: '#EFEFEF', justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#1976D2" />
+                    <Text style={{ marginTop: 16, color: '#666' }}>Loading transfer details...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Show error state
+    if (error) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, backgroundColor: '#EFEFEF', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                    <Text style={{ color: '#D32F2F', fontSize: 16, textAlign: 'center', marginBottom: 16 }}>
+                        Failed to load transfer details
+                    </Text>
+                    <Text style={{ color: '#666', fontSize: 14, textAlign: 'center', marginBottom: 20 }}>
+                        {error}
+                    </Text>
+                    <TouchableOpacity
+                        style={{ backgroundColor: '#1976D2', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
+                        onPress={() => router.replace('/')}
+                    >
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Go Home</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Show message if no transfer data
+    if (!transferData) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, backgroundColor: '#EFEFEF', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                    <Text style={{ color: '#666', fontSize: 16, textAlign: 'center', marginBottom: 20 }}>
+                        No transfer data found
+                    </Text>
+                    <TouchableOpacity
+                        style={{ backgroundColor: '#1976D2', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
+                        onPress={() => router.replace('/')}
+                    >
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Go Home</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -139,76 +187,46 @@ export default function ReceiptScreen() {
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>Detail Transaksi</Text>
                             <View style={{ flex: 1, flexDirection: 'column', gap: 12 }}>
-                                {isVirtualAccountTransfer ? (
-                                    <>
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>NOMOR VA</Text>
-                                            <Text style={styles.detailValue}>{vaNumber}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>ACCOUNT NUMBER</Text>
+                                    <Text style={styles.detailValue}>{vaNumber}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>NAMA</Text>
-                                            <Text style={styles.detailValue}>{name}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>ACCOUNT NAME</Text>
+                                    <Text style={styles.detailValue}>{name}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>PARTNER SERVICE ID</Text>
-                                            <Text style={styles.detailValue}>{vaData?.partnerServiceId?.trim() || '-'}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>BANK NAME</Text>
+                                    <Text style={styles.detailValue}>{transferData?.bank.bank_name || '-'}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>CUSTOMER NO</Text>
-                                            <Text style={styles.detailValue}>{vaData?.customerNo || '-'}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>REFERENCE NO</Text>
+                                    <Text style={styles.detailValue}>{transferData?.transaction_ref || '-'}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>REFERENCE NO</Text>
-                                            <Text style={styles.detailValue}>{referenceNo}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>PARTNER REFERENCE NO</Text>
+                                    <Text style={styles.detailValue}>{trxId}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>PAYMENT REQUEST ID</Text>
-                                            <Text style={styles.detailValue}>{trxId}</Text>
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>STATUS</Text>
+                                    <Text style={styles.detailValue}>{transferData?.status || '-'}</Text>
+                                </View>
+                                <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
 
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
-
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>TRX DATE TIME</Text>
-                                            <Text style={styles.detailValue}>{vaData?.trxDateTime || '-'}</Text>
-                                        </View>
-                                    </>
-                                ) : (
-                                    <>
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>NOMOR VA</Text>
-                                            <Text style={styles.detailValue}>{vaNumber}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
-
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>NAMA</Text>
-                                            <Text style={styles.detailValue}>{name}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
-
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>REFERENCE NO</Text>
-                                            <Text style={styles.detailValue}>{referenceNo}</Text>
-                                        </View>
-                                        <View style={{ borderBottomWidth: 0.5, borderBottomColor: "#888" }} />
-
-                                        <View style={styles.rowBetween}>
-                                            <Text style={styles.detailLabel}>TRX ID</Text>
-                                            <Text style={styles.detailValue}>{trxId}</Text>
-                                        </View>
-                                    </>
-                                )}
+                                <View style={styles.rowBetween}>
+                                    <Text style={styles.detailLabel}>TRANSACTION DATE</Text>
+                                    <Text style={styles.detailValue}>{formatDate(transferData?.created_at)}</Text>
+                                </View>
                             </View>
                         </View>
                     </View>

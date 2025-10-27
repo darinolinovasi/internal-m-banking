@@ -59,8 +59,6 @@ export default function ReceiptScreen() {
         };
     }, [router]);
 
-    console.log("ASDADSA : ", transferData)
-
     // Format date to dd-MM-yyyy HH:MM format
     const formatDate = (dateString: string) => {
         if (!dateString) return '-';

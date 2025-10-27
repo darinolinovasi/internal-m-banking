@@ -62,7 +62,6 @@ export default function VirtualAccountAmountInputModal({
             return;
         }
 
-        console.log(amount)
         onConfirm(amount);
     };
 
@@ -110,16 +109,19 @@ export default function VirtualAccountAmountInputModal({
                                     </View>
 
                                     {/* Virtual Account Info */}
-                                    <View style={styles.infoContainer}>
-                                        <View style={styles.infoRow}>
-                                            <Text style={styles.infoLabel}>{t('virtual_account_name', 'Virtual Account Name')}</Text>
-                                            <Text style={styles.infoValue}>{virtualAccountData?.virtualAccountName || '-'}</Text>
+                                    <View style={[keyboardVisible && { display: 'none' }]}>
+                                        <View style={styles.infoContainer}>
+                                            <View style={styles.infoRow}>
+                                                <Text style={styles.infoLabel}>{t('virtual_account_name', 'Virtual Account Name')}</Text>
+                                                <Text style={styles.infoValue}>{virtualAccountData?.virtualAccountName || '-'}</Text>
+                                            </View>
+
+                                            <View style={styles.infoRow}>
+                                                <Text style={styles.infoLabel}>{t('virtual_account_number', 'Virtual Account Number')}</Text>
+                                                <Text style={styles.infoValue}>{virtualAccountData?.virtualAccountNo?.trim() || '-'}</Text>
+                                            </View>
                                         </View>
 
-                                        <View style={styles.infoRow}>
-                                            <Text style={styles.infoLabel}>{t('virtual_account_number', 'Virtual Account Number')}</Text>
-                                            <Text style={styles.infoValue}>{virtualAccountData?.virtualAccountNo?.trim() || '-'}</Text>
-                                        </View>
                                     </View>
 
                                     {/* Amount Input */}
@@ -148,7 +150,7 @@ export default function VirtualAccountAmountInputModal({
                                     </View>
 
                                     {/* Action Buttons */}
-                                    <View style={styles.buttonContainer}>
+                                    <View style={[styles.buttonContainer, keyboardVisible && { display: 'none' }]}>
                                         <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
                                             <Text style={styles.cancelButtonText}>{t('cancel', 'Cancel')}</Text>
                                         </TouchableOpacity>

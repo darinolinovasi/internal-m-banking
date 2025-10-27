@@ -46,7 +46,7 @@ export default function TransactionsScreen() {
                                 <View style={styles.cardLeft}>
                                     <Text style={styles.cardName}>{transfer.recipient_name}</Text>
 
-                                    <Text style={styles.cardBank}>{t('bank_transfer')}</Text>
+                                    <Text style={styles.cardBank}>{t(transfer.recipient_account_type)}</Text>
 
                                     <Text style={{ fontSize: 12, color: '#888' }}>{transfer.note}</Text>
                                 </View>

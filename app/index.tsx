@@ -38,6 +38,7 @@ export default function HomeScreen() {
   React.useEffect(() => {
     const getUserInfo = async () => {
       const userInfo = await SecureStorage.getUserInfo();
+      console.log("User Info", userInfo)
       if (userInfo) {
         setUser(userInfo);
       }

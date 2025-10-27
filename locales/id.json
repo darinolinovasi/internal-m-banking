@@ -88,6 +88,8 @@
     "previous_transactions": "Transaksi Sebelumnya",
     "sample_date": "Senin, 1 Jan 2000",
     "bank_transfer": "Transfer Bank",
+    "bank_account": "Bank Transfer",
+    "virtual_account": "Virtual Account",
     "select_date_range": "Pilih Rentang Tanggal",
     "choose": "Pilih",
     "search": "Cari",
@@ -133,5 +135,5 @@
     "forgot_pin_title": "Lupa PIN",
     "forgot_pin_message": "Jika Anda lupa PIN, silakan hubungi layanan pelanggan kami untuk bantuan.",
     "contact_support": "Hubungi Dukungan",
-    "close": "Tutup"
+    "error_loading_accounts": "Gagal memuat rekening tersimpan."
 }

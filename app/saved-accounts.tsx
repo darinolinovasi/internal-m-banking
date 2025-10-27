@@ -1,8 +1,11 @@
 import { Logos } from '@/assets/logos';
 import AccountNumberInputSheet from '@/components/AccountNumberInputSheet';
 import BankListSheet from '@/components/BankListSheet';
+import VirtualAccountAmountInputModal from '@/components/VirtualAccountAmountInputModal';
+import VirtualAccountSuccessModal from '@/components/VirtualAccountSuccessModal';
 import { useSavedAccounts } from '@/hooks/use-saved-accounts';
 import { useTransfer } from '@/hooks/use-transfer';
+import { useVirtualAccountInquiry } from '@/hooks/use-virtual-account-inquiry';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import pkg from 'lodash';
@@ -19,6 +22,8 @@ const { debounce } = pkg;
 
 export default function SavedAccountsScreen() {
     const { t } = useTranslation();
+    const [virtualAccountData, setVirtualAccountData] = useState<any>(null);
+    const [showAmountInputModal, setShowAmountInputModal] = useState(false);
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [showSheet, setShowSheet] = useState(false);
@@ -38,6 +43,8 @@ export default function SavedAccountsScreen() {
     const snapPoints = ['100%'];
     const { accounts, loading, error, refetch, statusCode } = useSavedAccounts();
     const { transferToAccount, loading: transferLoading, error: transferError } = useTransfer();
+    const { inquiryVirtualAccount, loading: inquiryLoading, error: inquiryError, sessionExpired, clearError, clearSessionExpired } = useVirtualAccountInquiry();
+    const [_, setError] = useState<string | null>(null);
     const router = useRouter();
 
     // Debounce handlers (no useEffect)
@@ -86,6 +93,40 @@ export default function SavedAccountsScreen() {
         refetch(); // Refresh the saved accounts list
     };
 
+    // Handler account pressed
+    const handleAccountPress = async (item: any) => {
+        // setViewAccount(account);
+        if (item.account_type === 'virtual_account') {
+            try {
+                const response = await inquiryVirtualAccount(item.account_number);
+
+                console.log(response);
+
+                if (response && response.status === 200) {
+                    const vaData = response.data.data.virtualAccountData;
+                    setVirtualAccountData(vaData);
+
+                    // Check if paidAmount.value is empty or null
+                    if (!vaData?.paidAmount?.value || vaData.paidAmount.value === '' || vaData.paidAmount.value === null) {
+                        // Show amount input modal
+                        setShowAmountInputModal(true);
+                    } else {
+                        // Show success modal with virtual account data
+                        setShowSuccessModal(true);
+                    }
+                } else {
+                    setError(t('virtual_account_not_found', 'Virtual account number not found'));
+                }
+            } catch (err: any) {
+                // Error handled by hook
+                console.log(err.response?.data)
+                setError(inquiryError || t('virtual_account_error', 'Error validating virtual account'));
+            }
+            setShowAmountInputModal(true);
+        } else {
+            setViewAccount(item);
+        }
+    };
     // Handler for after PIN is verified
     const handlePinVerified = async () => {
         setShowVerifyPin(false);
@@ -115,7 +156,7 @@ export default function SavedAccountsScreen() {
                 originatorBankCode: '',
                 internalData: {
                     recipientAccountID: viewAccount.id,
-                    recipientAccountType: "bank_account",
+                    recipientAccountType: viewAccount.account_type || "bank_account",
                     recipientName: viewAccount.account_holder_name,
                     bankID: viewAccount.bank.id,
                     TransferType: "manual",
@@ -135,7 +176,6 @@ export default function SavedAccountsScreen() {
             }, 1000);
         } catch (err: any) {
             setTransferResult({ success: false, message: 'Transfer gagal' });
-            setShowErrorModal(true);
         } finally {
             setIsTransferring(false);
         }
@@ -149,6 +189,36 @@ export default function SavedAccountsScreen() {
             }, 1000);
         }
     }, [statusCode]);
+
+    const handleModalClose = () => {
+        setShowSuccessModal(false);
+        setVirtualAccountData(null);
+    };
+
+    const handleAmountInputClose = () => {
+        setShowAmountInputModal(false);
+        setVirtualAccountData(null);
+    };
+
+    const handleAmountConfirm = (amount: string) => {
+        // Update virtual account data with the entered amount
+        if (virtualAccountData) {
+            const updatedData = {
+                ...virtualAccountData,
+                totalAmount: {
+                    value: amount,
+                    currency: 'IDR'
+                }
+            };
+            setVirtualAccountData(updatedData);
+        }
+        setShowAmountInputModal(false);
+        setShowSuccessModal(true);
+    };
+
+    const handleContinueTransfer = () => {
+        setShowSuccessModal(false);
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#001F3F' }}>
@@ -201,7 +271,10 @@ export default function SavedAccountsScreen() {
                             <Text style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>{t('loading')}</Text>
                         </View>
                     ) : error ? (
-                        <Text style={{ color: 'red', margin: 16 }}>{error}</Text>
+                        <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', marginTop: 48 }}>
+                            <Text style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>{t('error_loading_accounts')}</Text>
+                        </View>
+                        // <Text style={{ color: 'red', margin: 16 }}>{error}</Text>
                     ) : filteredAccounts.length === 0 ? (
                         <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', marginTop: 48 }}>
                             <Text style={{ color: '#888', textAlign: 'center', fontSize: 16 }}>{t('no_saved_accounts')}</Text>
@@ -212,7 +285,7 @@ export default function SavedAccountsScreen() {
                             keyExtractor={item => item.id?.toString() || item.account_number}
                             contentContainerStyle={{ paddingHorizontal: 8 }}
                             renderItem={({ item }) => (
-                                <TouchableOpacity onPress={() => setViewAccount(item)}>
+                                <TouchableOpacity onPress={() => handleAccountPress(item)}>
                                     <View style={styles.accountCard}>
                                         <View style={styles.avatar} >
                                             {Logos[item.bank?.bank_code] || <View style={{ width: 44, height: 44, backgroundColor: '#E2E8F0', borderRadius: 8 }} />}
@@ -290,6 +363,26 @@ export default function SavedAccountsScreen() {
                     )}
                 </View>
             </GestureHandlerRootView>
+            {/* Virtual Account Amount Input Modal */}
+            {virtualAccountData && (
+                <VirtualAccountAmountInputModal
+                    visible={showAmountInputModal}
+                    virtualAccountData={virtualAccountData}
+                    onClose={handleAmountInputClose}
+                    onConfirm={handleAmountConfirm}
+                />
+            )}
+
+            {/* Virtual Account Success Modal */}
+            {virtualAccountData && (
+                <VirtualAccountSuccessModal
+                    visible={showSuccessModal}
+                    virtualAccountData={virtualAccountData}
+                    onClose={handleModalClose}
+                    onContinue={handleContinueTransfer}
+                    setShowSuccessModal={setShowSuccessModal}
+                />
+            )}
         </SafeAreaView>
     );
 }

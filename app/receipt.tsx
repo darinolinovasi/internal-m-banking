@@ -2,11 +2,13 @@ import { useTransferByReference } from '@/hooks/use-transfer-by-reference';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
 export default function ReceiptScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const params = useLocalSearchParams();
     const { getTransferByReference, transferData, loading, error } = useTransferByReference();
@@ -149,6 +151,17 @@ export default function ReceiptScreen() {
                     <View collapsable={false} style={{ backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden' }}>
                         {/* Provider Section */}
                         <View style={styles.section}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                                <TouchableOpacity onPress={() => {
+                                    router.push('/transactions')
+                                }} style={{ marginRight: 12 }}>
+                                    <Svg width="24" height="24" viewBox="0 0 40 40" fill="none" >
+                                        <Path d="M20 0.5C9.23094 0.5 0.5 9.23094 0.5 20C0.5 30.7691 9.23094 39.5 20 39.5C30.7691 39.5 39.5 30.7691 39.5 20C39.5 9.23094 30.7691 0.5 20 0.5ZM25.8716 29L23.75 31.1216L12.6284 20L23.75 8.87844L25.8716 11L16.8716 20L25.8716 29Z" fill="#050505" />
+                                    </Svg>
+
+                                </TouchableOpacity>
+                                <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{t('transaction_history')}</Text>
+                            </View>
                             <Text style={styles.sectionLabel}>Penyedia Jasa</Text>
                             <Text style={styles.provider}>{provider}</Text>
                             <Text style={styles.providerSub}>{vaNumber} - {name}</Text>

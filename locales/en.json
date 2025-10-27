@@ -88,6 +88,8 @@
     "previous_transactions": "Previous Transactions",
     "sample_date": "Monday, Jan 1 2000",
     "bank_transfer": "Bank Transfer",
+    "bank_account": "Bank Transfer",
+    "virtual_account": "Virtual Account",
     "select_date_range": "Select Date Range",
     "choose": "Choose",
     "search": "Search",
@@ -133,5 +135,5 @@
     "forgot_pin_title": "Forgot PIN",
     "forgot_pin_message": "If you have forgotten your PIN, please contact our customer service for assistance.",
     "contact_support": "Contact Support",
-    "close": "Close"
+    "error_loading_accounts": "Failed to load saved accounts."
 }

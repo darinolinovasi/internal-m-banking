@@ -87,6 +87,8 @@
     "previous_transactions": "過去の取引",
     "sample_date": "月曜日, 2000年1月1日",
     "bank_transfer": "銀行振込",
+    "bank_account": "Bank Transfer",
+    "virtual_account": "Virtual Account",
     "select_date_range": "日付範囲を選択",
     "choose": "選択",
     "search": "検索",
@@ -132,5 +134,5 @@
     "forgot_pin_title": "PINを忘れた場合",
     "forgot_pin_message": "PINを忘れた場合は、カスタマーサービスにお問い合わせください。",
     "contact_support": "サポートに連絡",
-    "close": "閉じる"
+    "error_loading_accounts": "保存された口座の読み込みに失敗しました。"
 }

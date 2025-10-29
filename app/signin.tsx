@@ -73,12 +73,16 @@ export default function SignInScreen() {
                     <Text style={styles.label}>{t('password')}</Text>
                     <View style={styles.passwordWrapper}>
                         <TextInput
-                            style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                            style={[styles.input, { flex: 1, marginBottom: 0 }, !showPassword && {
+                                fontFamily: undefined,
+                                color: "#000000"
+                            }]}
                             placeholder={t('enter_password')}
                             placeholderTextColor="#BFC6D1"
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry={!showPassword}
+                            keyboardType="default"
                             autoCapitalize="none"
                         />
                         <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>

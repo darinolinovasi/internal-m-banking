@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 /**
  * Security configuration and constants
  * This file contains all security-related configurations and constants
@@ -6,12 +7,12 @@
 // Environment variables with fallbacks
 export const SECURITY_CONFIG = {
     // API Configuration
-    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || 'https://your-api-domain.com/api/v1/',
+    API_BASE_URL: Constants.expoConfig?.extra?.apiUrl || "",
     API_TIMEOUT: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '10000'),
 
     // Device Configuration
-    DEVICE_ID: process.env.EXPO_PUBLIC_DEVICE_ID || 'secure-device-id',
-    BANK_CARD_TOKEN: process.env.EXPO_PUBLIC_BANK_CARD_TOKEN || 'secure-bank-card-token',
+    DEVICE_ID: Constants.expoConfig?.extra?.deviceId || 'secure-device-id',
+    BANK_CARD_TOKEN: Constants.expoConfig?.extra?.bankCardToken || 'secure-bank-card-token',
     CHANNEL: process.env.EXPO_PUBLIC_CHANNEL || 'mobilephone',
 
     // Security Features
@@ -19,7 +20,7 @@ export const SECURITY_CONFIG = {
     ENABLE_CERTIFICATE_VALIDATION: process.env.EXPO_PUBLIC_ENABLE_CERTIFICATE_VALIDATION === 'true',
 
     // Environment
-    ENVIRONMENT: process.env.EXPO_PUBLIC_ENVIRONMENT || 'production',
+    ENVIRONMENT: Constants.expoConfig?.extra?.environment || 'development',
     DEBUG_MODE: process.env.EXPO_PUBLIC_DEBUG_MODE === 'true',
 } as const;
 

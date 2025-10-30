@@ -190,6 +190,11 @@ export function processApiError(error: any, t?: TFunction): ProcessedError {
                 title = translate('pin_wrong_title', 'PIN Salah');
                 isSessionExpired = false;
                 shouldRedirectToSignin = false;
+            } else if (extractedMessage.includes("invalid_token")) {
+                errorMessage = "Verify pin again"
+                title = "Session Expired"
+                isSessionExpired = false;
+                shouldRedirectToSignin = true;
             }
         } else if (data?.message && data.message.toLowerCase().includes('invalid pin')) {
             console.log('📌 Invalid PIN detected in message - NOT redirecting');
@@ -269,12 +274,14 @@ export function createErrorHandler(
                 title: options.title,
                 showRetry: false, // Don't show retry for session expired
                 onClose: () => {
-                    console.log('📱 Modal closed - clearing tokens and redirecting');
-                    // Clear any stored tokens before redirecting
-                    SecureStorage.logout();
+                    if (options.isSessionExpired) {
+                        console.log('📱 Modal closed - clearing tokens and redirecting');
+                        // Clear any stored tokens before redirecting
+                        SecureStorage.logout();
+                    }
 
                     // Redirect to signin screen
-                    router.replace('/signin');
+                    router.replace('/');
                 }
             });
             return processedError;

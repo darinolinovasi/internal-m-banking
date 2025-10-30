@@ -185,7 +185,7 @@ export default function SavedAccountsScreen() {
         if (statusCode === 401) {
             // If unauthorized, clear JWT and redirect to sign-in in 5 seconds
             setTimeout(() => {
-                router.replace('/signin');
+                router.replace('/');
             }, 1000);
         }
     }, [statusCode]);

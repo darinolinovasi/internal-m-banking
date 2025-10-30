@@ -48,7 +48,7 @@ export default function ReceiptScreen() {
     // Handle back navigation - navigate to home screen
     useEffect(() => {
         const handleBackPress = () => {
-            router.replace('/');
+            router.replace('/home');
             return true; // Prevent default back behavior
         };
 
@@ -116,7 +116,7 @@ export default function ReceiptScreen() {
                     </Text>
                     <TouchableOpacity
                         style={{ backgroundColor: '#1976D2', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
-                        onPress={() => router.replace('/')}
+                        onPress={() => router.replace('/home')}
                     >
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>Go Home</Text>
                     </TouchableOpacity>
@@ -135,7 +135,7 @@ export default function ReceiptScreen() {
                     </Text>
                     <TouchableOpacity
                         style={{ backgroundColor: '#1976D2', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
-                        onPress={() => router.replace('/')}
+                        onPress={() => router.replace('/home')}
                     >
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>Go Home</Text>
                     </TouchableOpacity>

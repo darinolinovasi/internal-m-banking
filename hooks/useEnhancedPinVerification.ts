@@ -18,7 +18,7 @@ export function useEnhancedPinVerification() {
     // Simple session expired handler without using useAppAuth hook
     const handleSessionExpired = useCallback(async () => {
         await SecureStorage.logout();
-        router.replace('/signin');
+        router.replace('/');
     }, [router]);
 
     /**

@@ -19,7 +19,7 @@ export interface LoginCredentials {
 
 export function useAppAuth() {
     const { state, dispatch } = useAppState();
-    const { user, isAuthenticated, sessionExpired, loading, error } = state;
+    const { user, isAuthenticated, sessionExpired, loading, errors: error } = state;
     const router = useRouter();
 
     /**
@@ -92,12 +92,12 @@ export function useAppAuth() {
             dispatch({ type: 'RESET_STATE' });
 
             // Navigate to sign in
-            router.replace('/signin');
+            router.replace('/');
         } catch (error) {
             console.error('Error during sign out:', error);
             // Still reset state even if logout fails
             dispatch({ type: 'RESET_STATE' });
-            router.replace('/signin');
+            router.replace('/');
         }
     }, [dispatch, router]);
 
@@ -141,7 +141,7 @@ export function useAppAuth() {
         dispatch({ type: 'RESET_STATE' });
 
         // Navigate to sign in
-        router.replace('/signin');
+        router.replace('/');
     }, [dispatch, router]);
 
     /**

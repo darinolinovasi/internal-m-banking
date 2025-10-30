@@ -41,11 +41,11 @@ export default function RootLayout() {
       <ErrorProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
-            <Stack.Screen name="signin" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="create-pin" options={{ headerShown: false }} />
             <Stack.Screen name="confirmation-pin" options={{ headerShown: false }} />
             <Stack.Screen name="saved-accounts" options={{ headerShown: false }} />
-            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="home" options={{ headerShown: false }} />
             <Stack.Screen name="receipt" options={{ headerShown: false }} />
             <Stack.Screen name="account" options={{ headerShown: false }} />
             <Stack.Screen name="transactions" options={{ headerShown: false }} />

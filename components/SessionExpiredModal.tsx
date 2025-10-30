@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SecureStorage } from '@/utils/secureStorage';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,12 +18,12 @@ export default function SessionExpiredModal({
 
     const handleLogin = async () => {
         // Clear stored tokens
-        await AsyncStorage.removeItem('jwt');
-        await AsyncStorage.removeItem('refresh_token');
-        await AsyncStorage.removeItem('user');
+        await SecureStorage.removeSecureItem('jwt_token')
+        await SecureStorage.removeSecureItem('refresh_token')
+        await SecureStorage.removeSecureItem('user')
 
         // Navigate to login screen
-        router.replace('/signin');
+        router.replace('/');
 
         // Close modal if onClose callback is provided
         onClose?.();

@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 export function useSignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<any>(null);
     const { showError } = useError();
     const router = useRouter();
     const { t } = useTranslation();
@@ -38,8 +37,6 @@ export function useSignIn() {
         try {
             console.log(api.getUri())
             const response = await api.post('/auth/login', { email, password });
-            setData(response.data);
-            // log full api url
 
             // Save JWT securely
             if (response.data?.data?.jwt) {

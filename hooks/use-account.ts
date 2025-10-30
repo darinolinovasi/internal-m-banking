@@ -1,6 +1,9 @@
 import api from "@/api/api";
 import { SECURITY_CONFIG } from "@/config/security";
+import { useError } from "@/contexts/ErrorContext";
+import { createErrorHandler } from "@/utils/errorHandler";
 import { SecureStorage } from "@/utils/secureStorage";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 
 export function useAccount() {
@@ -8,6 +11,9 @@ export function useAccount() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sessionExpired, setSessionExpired] = useState(false);
+    const router = useRouter()
+    const { showError } = useError()
+    const handleError = createErrorHandler(showError, router)
 
     const fetchAccountBalance = async (accountNo: string) => {
         setLoading(true);
@@ -27,7 +33,17 @@ export function useAccount() {
         } catch (err: any) {
             // Check if it's a 401 error (session expired)
             if (err?.response?.status === 401) {
-                setSessionExpired(true);
+                console.log("token expired")
+                console.log(err.response.data)
+                const a: string = "ASDSAD"
+                a.includes("asd")
+                if (err?.response?.data?.error?.responseMessage.includes("invalid_token")) {
+                    handleError(err, {
+                        title: "Session Expired",
+                        showRetry: false
+                    })
+                }
+                // setSessionExpired(true);
                 setError('Session expired');
             } else {
                 setError(err?.message || 'Failed to fetch account');

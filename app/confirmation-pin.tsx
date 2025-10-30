@@ -32,7 +32,7 @@ export default function ConfirmationPinScreen() {
                     setModal({ visible: true, message: t('pin_created_success'), loading: false });
                     setTimeout(() => {
                         setModal({ visible: false, message: '', loading: false });
-                        router.replace('/');
+                        router.replace('/home');
                     }, 1500);
                 }
             } catch (err) {

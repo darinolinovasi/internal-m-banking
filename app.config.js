@@ -61,9 +61,9 @@ export default {
                 projectId: '2ff9d6b3-9449-4ef2-8424-35d7c7cb76e3',
             },
             // Tambahkan environment variables di sini
-            apiUrl: process.env.API_URL,
-            bankCardToken: process.env.BANK_CARD_TOKEN,
-            deviceId: process.env.DEVICE_ID,
+            apiUrl: "https://unwhipt-peridotic-chante.ngrok-free.dev/api/v1/",
+            bankCardToken: "6d7963617264746f6b656e",
+            deviceId: "dev-device-12345",
             environment: process.env.APP_ENV || 'development',
         },
         runtimeVersion: {

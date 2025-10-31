@@ -16,7 +16,6 @@ export default function VirtualAccountAmountInputModal({
     onClose,
     onConfirm
 }: VirtualAccountAmountInputModalProps) {
-    console.log("Virtual Account Amount Input Modal", virtualAccountData)
     const { t } = useTranslation();
     const [amount, setAmount] = useState('');
     const [error, setError] = useState<string | null>(null);

@@ -25,7 +25,7 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
     const [editableNote, setEditableNote] = useState(note);
     const [showPinModal, setShowPinModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const { saveAccountNumber, loading: saving, error: saveError } = useSaveAccountNumber();
+    const { saveAccountNumber, error: saveError } = useSaveAccountNumber();
     const isAlreadySaved = accountData?.isSaved;
 
     const handleSaveAccount = async () => {
@@ -36,7 +36,7 @@ export default function AccountSuccessSheet({ bank, accountData, note, onBack, o
                 account_type: 'bank_account',
                 virtual_account_code: '',
                 account_holder_name: accountData.beneficiaryAccountName,
-                note: note || '',
+                note: editableNote || '',
             });
             setShowSuccessModal(true);
             setTimeout(() => {

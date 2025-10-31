@@ -87,13 +87,15 @@ export default function VirtualAccountSuccessModal({
 
             const response = await transferToVirtualAccount(transferParams);
 
+            console.log("TRANSFER RESPONSE", response.data);
+
             if (response.status === 200) {
                 console.log(response.data)
                 // Transfer successful, navigate to receipt screen with transfer response data
                 router.push({
                     pathname: '/receipt',
                     params: {
-                        referenceNo: response.data.data.virtualAccountData.referenceNo,
+                        referenceNo: response.data.data.virtualAccountData.referenceNo == "" ? response.data.data.virtualAccountData.partnerReferenceNo : response.data.data.virtualAccountData.referenceNo,
                     }
                 });
             }

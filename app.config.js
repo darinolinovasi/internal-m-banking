@@ -65,6 +65,7 @@ export default {
             bankCardToken: "6d7963617264746f6b656e",
             deviceId: "dev-device-12345",
             environment: process.env.APP_ENV || 'development',
+            snapApi: process.env.SNAP_API || 'ASPI',
         },
         runtimeVersion: {
             policy: 'appVersion',

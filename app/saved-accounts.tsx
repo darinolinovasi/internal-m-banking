@@ -148,7 +148,7 @@ export default function SavedAccountsScreen() {
                 note: noteToSend,
                 partnerReferenceNo: '20211130000000001',
                 customerReference: '10052023',
-                sourceAccountNo: '2000200202',
+                sourceAccountNo: '888801000157610',
                 transactionDate: "2021-11-24T10:30:24+07:00",
                 // The following are not used for interbank, but required for intrabank signature
                 originatorCustomerNo: '',
@@ -165,6 +165,7 @@ export default function SavedAccountsScreen() {
             });
             setTransferResult({ success: true, message: 'Transfer berhasil!' });
             setShowSuccessModal(true);
+            console.log("RESPONSE", response);
             setTimeout(() => {
                 setShowSuccessModal(false);
                 router.replace({

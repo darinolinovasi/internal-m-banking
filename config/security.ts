@@ -22,6 +22,9 @@ export const SECURITY_CONFIG = {
     // Environment
     ENVIRONMENT: Constants.expoConfig?.extra?.environment || 'development',
     DEBUG_MODE: process.env.EXPO_PUBLIC_DEBUG_MODE === 'true',
+
+    // SNAP API selector (from .env). Expected values: 'ASPI' | 'BRI'
+    SNAP_API: (Constants.expoConfig?.extra?.snapApi || 'ASPI').toUpperCase(),
 } as const;
 
 // Security headers for API requests

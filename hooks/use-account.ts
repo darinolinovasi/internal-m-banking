@@ -22,10 +22,29 @@ export function useAccount() {
             // Get bank card token from secure storage or use default
             const bankCardToken = await SecureStorage.getItem('bank_card_token') || SECURITY_CONFIG.BANK_CARD_TOKEN;
 
-            const response = await api.post('/account/balance', {
-                accountNo,
-                bankCardToken
-            });
+            // Choose request body based on SNAP API provider
+            // Default (ASPI) keeps existing request shape
+            console.log("Using SNAP API:", SECURITY_CONFIG.SNAP_API)
+            const snapApi = (SECURITY_CONFIG.SNAP_API || 'ASPI').toUpperCase();
+            let requestBody: any;
+
+            if (snapApi === 'BRI') {
+                // BRI SNAP API request body (placeholder):
+                // Edit this object manually to match the BRI payload contract
+                requestBody = {
+                    // TODO: replace with BRI-specific fields
+                    accountNo: "111231271284153",
+                    // briPayload: { ... } // <-- put BRI fields here
+                };
+            } else {
+                // ASPI (current) request body
+                requestBody = {
+                    accountNo,
+                    bankCardToken,
+                };
+            }
+
+            const response = await api.post('/account/balance', requestBody);
 
             setAccount(response.data?.data || null);
             return response.data?.data;
